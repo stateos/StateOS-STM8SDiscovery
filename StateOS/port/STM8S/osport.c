@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.c
     @author  Rajmund Szymanski
-    @date    28.10.2016
+    @date    30.11.2016
     @brief   StateOS port file for STM8S uC.
 
  ******************************************************************************
@@ -37,13 +37,20 @@ void port_sys_init( void )
 *******************************************************************************/
 
 	CLK->CKDIVR = 0;
-	CLK->SWCR  |= CLK_SWCR_SWEN; // Enable switching the master clock to the source defined in the CLK_SWR register
-	CLK->SWR    = 0xB4;          // HSE selected as master clock source
+	CLK->ECKR  |= CLK_ECKR_HSEEN; while ((CLK->ECKR & CLK_ECKR_HSERDY) == 0);
+	CLK->SWCR  |= CLK_SWCR_SWEN;
+	CLK->SWR    = 0xB4; /* HSE */ while ((CLK->SWCR & CLK_SWCR_SWBSY)  == 1);
 
-	TIM4->PSCR  = 6;             // Prescaler:      16.000.000 /  64 = 250.000
-	TIM4->ARR   = 249;           // Auto-reload value: 250.000 / 250 =   1.000
-	TIM4->IER  |= TIM4_IER_UIE;  // Enable interrupt
-	TIM4->CR1  |= TIM4_CR1_CEN;  // Enable timer
+#define LEN_(X)  ((X)?LEN_((X)>>1)+1:0)
+#define PSC_ LEN_((CPU_FREQUENCY/OS_FREQUENCY-1)>>16)
+#define ARR_      (CPU_FREQUENCY/OS_FREQUENCY/(1<<PSC_))
+
+	TIM3->PSCR  = (PSC_);
+	TIM3->ARRH  = (ARR_ - 1) >> 8;
+	TIM3->ARRL  = (ARR_ - 1);
+	TIM3->IER  |= TIM3_IER_UIE;
+	TIM3->IER  |= TIM3_IER_CC1IE;
+	TIM3->CR1  |= TIM3_CR1_CEN;
 
 	enableInterrupts();
 
@@ -58,18 +65,30 @@ void port_sys_init( void )
  Put here the procedure of interrupt handler of system timer for non-tick-less mode
 *******************************************************************************/
 
-@interrupt//@svlreg
-void TIM4_UPD_OVF_IRQHandler( void )
+#if OS_ROBIN
+@svlreg
+#endif
+@interrupt
+void TIM3_UPD_OVF_BRK_IRQHandler( void )
 {
-	TIM4->SR1 = ~TIM4_SR1_UIF; // clear timer's status register
+	TIM3->SR1= ~TIM3_SR1_UIF;
 
 	System.cnt++;
 #if OS_ROBIN
 	core_tmr_handler();
 	System.dly++;
-	if (System.dly >= OS_FREQUENCY/OS_ROBIN)
-	port_ctx_switch();
+	if (System.dly < OS_FREQUENCY/OS_ROBIN) return;
+	port_set_sp(core_tsk_handler(port_get_sp()));
 #endif
+}
+
+@svlreg
+@interrupt
+void TIM3_CAP_COM_IRQHandler( void )
+{
+	TIM3->SR1 = ~TIM3_SR1_CC1IF;
+
+	port_set_sp(core_tsk_handler(port_get_sp()));
 }
 
 /******************************************************************************

@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    20.11.2016
+    @date    30.11.2016
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -37,11 +37,6 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 
-#define GLUE( a, b, c )            a##b##c
-#define  CAT( a, b, c )       GLUE(a, b, c)
-
-/* -------------------------------------------------------------------------- */
-
 #ifndef  OS_TIMER
 #define  OS_TIMER             0
 #endif
@@ -64,16 +59,10 @@ extern "C" {
 /* -------------------------------------------------------------------------- */
 
 #ifndef  OS_FREQUENCY
-
-#if      OS_TIMER
-#define  OS_FREQUENCY   1000000 /* Hz */
-#else
 #define  OS_FREQUENCY      1000 /* Hz */
-#endif
-
 #else
 
-#if     (OS_TIMER == 0) && (OS_FREQUENCY > 1000)
+#if     (OS_FREQUENCY > 1000)
 #error   osconfig.h: Incorrect OS_FREQUENCY value!
 #endif
 
@@ -131,6 +120,7 @@ extern   stk_t               _stack[];
 static inline
 void port_ctx_reset( void )
 {
+	TIM3->SR1 = ~TIM3_SR1_CC1IF;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -138,7 +128,7 @@ void port_ctx_reset( void )
 static inline
 void port_ctx_switch( void )
 {
-	trap();
+	TIM3->EGR = TIM3_EGR_CC1G;
 }
 
 /* -------------------------------------------------------------------------- */
