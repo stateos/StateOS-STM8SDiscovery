@@ -6,7 +6,7 @@
 #define CPU_FREQUENCY  16000000
 #define  OS_FREQUENCY      1000
 #define  OS_TIMER             0
-#define  OS_ROBIN          1000
+#define  OS_ROBIN           100
 #define  OS_LOCK_LEVEL        0
 #define  OS_MAIN_PRIO         0
 #define  OS_HEAP_SIZE         0

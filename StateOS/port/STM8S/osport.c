@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.c
     @author  Rajmund Szymanski
-    @date    30.11.2016
+    @date    01.12.2016
     @brief   StateOS port file for STM8S uC.
 
  ******************************************************************************
@@ -41,7 +41,11 @@ void port_sys_init( void )
 	CLK->SWCR  |= CLK_SWCR_SWEN;
 	CLK->SWR    = 0xB4; /* HSE */ while ((CLK->SWCR & CLK_SWCR_SWBSY)  == 1);
 
-#define LEN_(X)  ((X)?LEN_((X)>>1)+1:0)
+#define LN1_(X)  ((X)&1)
+#define LN2_(X)  ((X)>>1?1+LN1_((X)>>1):LN1_(X))
+#define LN4_(X)  ((X)>>2?2+LN2_((X)>>2):LN2_(X))
+#define LN8_(X)  ((X)>>4?4+LN4_((X)>>4):LN4_(X))
+#define LEN_(X)  ((X)>>8?8+LN8_((X)>>8):LN8_(X))
 #define PSC_ LEN_((CPU_FREQUENCY/OS_FREQUENCY-1)>>16)
 #define ARR_      (CPU_FREQUENCY/OS_FREQUENCY/(1<<PSC_))
 
