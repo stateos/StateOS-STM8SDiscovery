@@ -65,13 +65,12 @@ void port_sys_init( void )
 
 /* -------------------------------------------------------------------------- */
 
+#if OS_TIMER == 0
+
 /******************************************************************************
  Put here the procedure of interrupt handler of system timer for non-tick-less mode
 *******************************************************************************/
 
-#if OS_ROBIN
-@svlreg
-#endif
 @interrupt
 void TIM3_UPD_OVF_BRK_IRQHandler( void )
 {
@@ -81,22 +80,15 @@ void TIM3_UPD_OVF_BRK_IRQHandler( void )
 #if OS_ROBIN
 	core_tmr_handler();
 	System.dly++;
-	if (System.dly < OS_FREQUENCY/OS_ROBIN) return;
-	port_set_sp(core_tsk_handler(port_get_sp()));
+	if (System.dly >= OS_FREQUENCY/OS_ROBIN)
+	port_ctx_switch();
 #endif
-}
-
-@svlreg
-@interrupt
-void TIM3_CAP_COM_IRQHandler( void )
-{
-	TIM3->SR1 = ~TIM3_SR1_CC1IF;
-
-	port_set_sp(core_tsk_handler(port_get_sp()));
 }
 
 /******************************************************************************
  End of the procedure of interrupt handler
 *******************************************************************************/
+
+#endif//OS_TIMER
 
 /* -------------------------------------------------------------------------- */

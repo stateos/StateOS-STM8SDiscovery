@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    30.11.2016
+    @date    01.12.2016
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -189,14 +189,14 @@ void port_tmr_force( void )
 #define  port_sys_lock()       do { char __LOCK = port_get_lock(); port_set_lock()
 #define  port_sys_unlock()          port_put_lock(__LOCK); } while(0)
 
-#define  port_sys_enable()     do { (void)0
-#define  port_sys_disable()         (void)0; } while(0)
+#define  port_sys_enable()     do { char __LOCK = port_get_lock(); port_clr_lock()
+#define  port_sys_disable()         port_put_lock(__LOCK); } while(0)
 
 #define  port_isr_lock()       do { port_set_lock()
 #define  port_isr_unlock()          port_clr_lock(); } while(0)
 
-#define  port_isr_enable()     do { (void)0
-#define  port_isr_disable()         (void)0; } while(0)
+#define  port_isr_enable()     do { port_clr_lock()
+#define  port_isr_disable()         port_set_lock(); } while(0)
 
 /* -------------------------------------------------------------------------- */
 
