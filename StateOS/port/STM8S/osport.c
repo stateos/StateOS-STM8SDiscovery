@@ -41,13 +41,9 @@ void port_sys_init( void )
 	CLK->SWCR  |= CLK_SWCR_SWEN;
 	CLK->SWR    = 0xB4; /* HSE */ while ((CLK->SWCR & CLK_SWCR_SWBSY)  == 1);
 
-#define LN1_(X)   (X)
-#define LN2_(X)  ((X)>>1?1+LN1_((X)>>1):LN1_(X))
-#define LN4_(X)  ((X)>>2?2+LN2_((X)>>2):LN2_(X))
-#define LN8_(X)  ((X)>>4?4+LN4_((X)>>4):LN4_(X))
-#define LEN_(X)  ((X)>>8?8+LN8_((X)>>8):LN8_(X))
-#define PSC_ LEN_((CPU_FREQUENCY/OS_FREQUENCY-1)>>16)
-#define ARR_    (((CPU_FREQUENCY/OS_FREQUENCY)>>PSC_)-1)
+	#define  CNT_(X)   ((X)>>0?(X)>>1?(X)>>2?(X)>>3?(X)>>4?(X)>>5?(X)>>6?(X)>>7?(X)>>8?(X)>>9?1/0:9:8:7:6:5:4:3:2:1:0)
+	#define  PSC_ CNT_ ((CPU_FREQUENCY/OS_FREQUENCY-1)>>16)
+	#define  ARR_     (((CPU_FREQUENCY/OS_FREQUENCY)>>PSC_)-1)
 
 	TIM3->PSCR  = PSC_;
 	TIM3->ARRH  = ARR_ >> 8;
