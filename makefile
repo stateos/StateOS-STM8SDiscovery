@@ -7,7 +7,7 @@
 
 COSMIC     := c:/sys/cosmic/cxstm8/
 GNUCC      := c:/sys/gcc/bin/arm-none-eabi-
-STVP       := c:/sys/tools/stvp/stvp_cli -BoardName=ST-LINK -Port=USB -ProgMode=SWIM -Device=STM8S105x6 -verif -no_loop -no_log
+STVP       := c:/sys/tools/stvp/stvp_cmdline -BoardName=ST-LINK -Port=USB -ProgMode=SWIM -Device=STM8S105x6 -verif -no_loop -no_log
 
 #----------------------------------------------------------#
 
@@ -78,7 +78,7 @@ TXTS       := $(OBJS:.o=.la)
 #----------------------------------------------------------#
 
 AS_FLAGS   := #-ax
-AS_FLAGS   += -l
+AS_FLAGS   += -ep -l
 CC_FLAGS   := #+debug
 CC_FLAGS   += #+strict +warn
 CC_FLAGS   += +$(MODEL) -pc99 +compact -l
