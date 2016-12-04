@@ -2,7 +2,7 @@
 
     @file    StateOS: osbase.h
     @author  Rajmund Szymanski
-    @date    08.11.2016
+    @date    04.12.2016
     @brief   This file contains basic definitions for StateOS.
 
  ******************************************************************************
@@ -123,24 +123,21 @@ typedef struct __sys
 
 // task context
 
-typedef struct __sft // context saved by the software
+typedef struct __ctx
 {
-	char   dummy;
-	int    c_lreg[2];
+	char   dummy;     // sp is a pointer to the first free byte on the stack
+
+	char   c_lreg[4]; // context saved by the software
 	char   c_y[3];
 	char   c_x[3];
 
-}	sft_t, *sft_id;
-
-typedef struct __ctx // context saved by the hardware
-{
-	char   cc;
+	char   cc;        // context saved by the hardware
 	char   a;
 	int    x;
 	int    y;
 FAR	void * pc;
 
-	void * brk;
+	void * brk;       // return from task procedure
 
 }	ctx_t, *ctx_id;
 

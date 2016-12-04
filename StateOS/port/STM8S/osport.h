@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    01.12.2016
+    @date    04.12.2016
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -113,7 +113,7 @@ typedef  uint8_t              stk_t;
 /* -------------------------------------------------------------------------- */
 
 extern   stk_t               _stack[];
-#define  MAIN_SP             _stack+1
+#define  MAIN_TOP            _stack+1
 
 /* -------------------------------------------------------------------------- */
 
