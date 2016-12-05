@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    04.12.2016
+    @date    05.12.2016
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
