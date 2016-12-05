@@ -182,7 +182,6 @@ void port_tmr_force( void )
 #define  port_get_lock()     (char)_asm("push cc""\n""pop a")
 #define  port_put_lock(state)      _asm("push a""\n""pop cc", (char)(state))
 
-
 #define  port_set_lock()            disableInterrupts()
 #define  port_clr_lock()            enableInterrupts()
 
