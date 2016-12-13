@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.c
     @author  Rajmund Szymanski
-    @date    02.12.2016
+    @date    09.12.2016
     @brief   StateOS port file for STM8S uC.
 
  ******************************************************************************
@@ -77,7 +77,7 @@ void TIM3_UPD_OVF_BRK_IRQHandler( void )
 	core_tmr_handler();
 	System.dly++;
 	if (System.dly >= OS_FREQUENCY/OS_ROBIN)
-	port_ctx_switch();
+	core_ctx_switch();
 #endif
 }
 
