@@ -135,9 +135,9 @@ typedef struct __ctx
 	char   a;
 	int    x;
 	int    y;
-FAR	void * pc;
+FAR	void  *pc;
 
-	void * brk;       // return from task procedure
+	fun_id brk;       // return from task procedure
 
 }	ctx_t, *ctx_id;
 

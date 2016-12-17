@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    08.12.2016
+    @date    16.12.2016
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -117,11 +117,29 @@ extern   stk_t               _stack[];
 
 /* -------------------------------------------------------------------------- */
 
-static inline
-void port_ctx_reset( void )
-{
-	TIM3->SR1 = ~TIM3_SR1_CC1IF;
-}
+#ifndef  __CONSTRUCTOR
+#define  __CONSTRUCTOR
+#endif
+#ifndef  __NORETURN
+#define  __NORETURN
+#endif
+#ifndef  __WFI
+#define  __WFI  wfi
+#endif
+
+/* -------------------------------------------------------------------------- */
+
+#define  port_get_lock()     (char)_asm("push cc""\n""pop a")
+#define  port_put_lock(state)      _asm("push a""\n""pop cc", (char)(state))
+
+#define  port_set_lock()            disableInterrupts()
+#define  port_clr_lock()            enableInterrupts()
+
+#define  port_sys_lock()       do { char __LOCK = port_get_lock(); port_set_lock()
+#define  port_sys_unlock()          port_put_lock(__LOCK); } while(0)
+
+#define  port_isr_lock()       do { port_set_lock()
+#define  port_isr_unlock()          port_clr_lock(); } while(0)
 
 /* -------------------------------------------------------------------------- */
 
@@ -129,6 +147,32 @@ static inline
 void port_ctx_switch( void )
 {
 	TIM3->EGR = TIM3_EGR_CC1G;
+}
+
+/* -------------------------------------------------------------------------- */
+
+static inline
+void port_ctx_switchNow( void )
+{
+	port_ctx_switch();
+	port_clr_lock();
+}
+
+/* -------------------------------------------------------------------------- */
+
+static inline
+void port_ctx_switchLock( void )
+{
+	port_ctx_switchNow();
+	port_set_lock();
+}
+
+/* -------------------------------------------------------------------------- */
+
+static inline
+void port_ctx_reset( void )
+{
+	TIM3->SR1 = ~TIM3_SR1_CC1IF;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -155,47 +199,6 @@ static inline
 void port_tmr_force( void )
 {
 }
-
-/* -------------------------------------------------------------------------- */
-
-#ifndef  __ALWAYS
-#define  __ALWAYS
-#endif
-#ifndef  __CONSTRUCTOR
-#define  __CONSTRUCTOR
-#endif
-#ifndef  __NORETURN
-#define  __NORETURN
-#endif
-#ifndef  __WEAK
-#define  __WEAK
-#endif
-#ifndef  __WFI
-#define  __WFI  wfi
-#endif
-
-/* -------------------------------------------------------------------------- */
-
-#define  port_get_sp()     (void *)_asm("ldw x, sp")
-#define  port_set_sp(sp)           _asm("ldw sp, x", (unsigned)(sp))
-
-#define  port_get_lock()     (char)_asm("push cc""\n""pop a")
-#define  port_put_lock(state)      _asm("push a""\n""pop cc", (char)(state))
-
-#define  port_set_lock()            disableInterrupts()
-#define  port_clr_lock()            enableInterrupts()
-
-#define  port_sys_lock()       do { char __LOCK = port_get_lock(); port_set_lock()
-#define  port_sys_unlock()          port_put_lock(__LOCK); } while(0)
-
-#define  port_sys_enable()     do { char __LOCK = port_get_lock(); port_clr_lock()
-#define  port_sys_disable()         port_put_lock(__LOCK); } while(0)
-
-#define  port_isr_lock()       do { port_set_lock()
-#define  port_isr_unlock()          port_clr_lock(); } while(0)
-
-#define  port_isr_enable()     do { port_clr_lock()
-#define  port_isr_disable()         port_set_lock(); } while(0)
 
 /* -------------------------------------------------------------------------- */
 
