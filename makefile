@@ -81,7 +81,7 @@ AS_FLAGS   := #-ax
 AS_FLAGS   += -ep -l
 CC_FLAGS   := #+debug
 CC_FLAGS   += #+strict +warn
-CC_FLAGS   += +$(MODEL) -pc99 +compact -l -pad
+CC_FLAGS   += +$(MODEL) -pc99 +compact -l
 LD_FLAGS   := -m $(MAP)
 
 #----------------------------------------------------------#
