@@ -1,9 +1,9 @@
 StateOS
 =======
 
-Free, extremely simple and amazingly tiny real-time operating system (RTOS) designed for deeply embedded applications.
-Target: STM8S family.
+Free, extremely simple, amazingly tiny and very fast real-time operating system (RTOS) designed for deeply embedded applications.
 It was inspired by the concept of a state machine.
+TEMPLATE
 
 Features
 --------
