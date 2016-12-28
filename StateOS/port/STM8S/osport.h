@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    27.12.2016
+    @date    28.12.2016
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -116,10 +116,6 @@ extern "C" {
 #ifndef  NDEBUG
 #define  NDEBUG
 #endif
-#endif
-
-#ifndef  NDEBUG
-#define  __ASSERT_MSG
 #endif
 
 #include <assert.h>
