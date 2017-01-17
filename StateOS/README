@@ -28,10 +28,15 @@ Features:
 - all documentation is contained within the source files
 - examples and templates are in separate repositories (https://github.com/stateos)
 ---------
+4.4
+- added oslibc.c file for COSMIC Software CORTEX-M C Cross Compiler
+- added _TSK_CREATE macro in os_tsk.h file
+---------
 4.3
 - rebuilded internal preprocessor definitions
 - rebuilded data structures
 - rebuilded c++ classes
+- updated examples
 ---------
 4.2
 - added tsk_join function
