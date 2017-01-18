@@ -2,7 +2,7 @@
 
     @file    StateOS: oskernel.c
     @author  Rajmund Szymanski
-    @date    10.01.2017
+    @date    18.01.2017
     @brief   This file provides set of variables and functions for StateOS.
 
  ******************************************************************************
@@ -455,7 +455,7 @@ void core_tmr_handler( void )
 }
 
 /* -------------------------------------------------------------------------- */
-// SYSTEM ALLOC SERVICES
+// SYSTEM ALLOC/FREE SERVICES
 /* -------------------------------------------------------------------------- */
 
 #if OS_HEAP_SIZE
@@ -489,6 +489,13 @@ void *core_sys_alloc( size_t size )
 
 /* -------------------------------------------------------------------------- */
 
+void core_sys_free( void *ptr )
+{
+	(void) ptr;
+}
+
+/* -------------------------------------------------------------------------- */
+
 #else
 
 void *core_sys_alloc( size_t size )
@@ -510,6 +517,13 @@ void *core_sys_alloc( size_t size )
 	}
 
 	return base;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void core_sys_free( void *ptr )
+{
+	free(ptr);
 }
 
 #endif
