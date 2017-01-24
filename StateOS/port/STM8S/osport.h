@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    28.12.2016
+    @date    24.01.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -134,11 +134,14 @@ extern   stk_t               _stack[];
 #ifndef  __CONSTRUCTOR
 #define  __CONSTRUCTOR
 #endif
-#ifndef  __NORETURN
-#define  __NORETURN
+#ifndef  __NO_RETURN
+#define  __NO_RETURN
+#endif
+#ifndef  __STATIC_INLINE
+#define  __STATIC_INLINE      static inline
 #endif
 #ifndef  __WFI
-#define  __WFI  wfi
+#define  __WFI                wfi
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -157,7 +160,7 @@ extern   stk_t               _stack[];
 
 /* -------------------------------------------------------------------------- */
 
-static inline
+__STATIC_INLINE
 void port_ctx_switch( void )
 {
 	TIM3->EGR = TIM3_EGR_CC1G;
@@ -165,7 +168,7 @@ void port_ctx_switch( void )
 
 /* -------------------------------------------------------------------------- */
 
-static inline
+__STATIC_INLINE
 void port_ctx_switchNow( void )
 {
 	port_ctx_switch();
@@ -174,7 +177,7 @@ void port_ctx_switchNow( void )
 
 /* -------------------------------------------------------------------------- */
 
-static inline
+__STATIC_INLINE
 void port_ctx_switchLock( void )
 {
 	port_ctx_switchNow();
@@ -183,7 +186,7 @@ void port_ctx_switchLock( void )
 
 /* -------------------------------------------------------------------------- */
 
-static inline
+__STATIC_INLINE
 void port_ctx_reset( void )
 {
 	TIM3->SR1 = ~TIM3_SR1_CC1IF;
@@ -192,7 +195,7 @@ void port_ctx_reset( void )
 /* -------------------------------------------------------------------------- */
 
 // clear time breakpoint
-static inline
+__STATIC_INLINE
 void port_tmr_stop( void )
 {
 }
@@ -200,7 +203,7 @@ void port_tmr_stop( void )
 /* -------------------------------------------------------------------------- */
 
 // set time breakpoint
-static inline
+__STATIC_INLINE
 void port_tmr_start( unsigned timeout )
 {
 	(void) timeout;
@@ -209,7 +212,7 @@ void port_tmr_start( unsigned timeout )
 /* -------------------------------------------------------------------------- */
 
 // force timer interrupt
-static inline
+__STATIC_INLINE
 void port_tmr_force( void )
 {
 }
