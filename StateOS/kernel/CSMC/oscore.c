@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.c
     @author  Rajmund Szymanski
-    @date    16.12.2016
+    @date    25.01.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -48,17 +48,13 @@ void core_tsk_flip( void *sp )
 {
 	#asm
 
-	decw  x
-	ldw   sp,    x
-#if defined(__MODS__) || defined(__MODSL__)
-	xref  f_core_tsk_break
-	jpf   f_core_tsk_break
-#else
-	xref  _core_tsk_break
-	jp    _core_tsk_break
-#endif
+	decw   x
+	ldw    sp,    x
 
 	#endasm
+
+	core_ctx_switch();
+	core_tsk_start();
 }
 
 /* -------------------------------------------------------------------------- */
