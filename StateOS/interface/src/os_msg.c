@@ -2,7 +2,7 @@
 
     @file    StateOS: os_msg.c
     @author  Rajmund Szymanski
-    @date    10.01.2017
+    @date    24.02.2017
     @brief   This file provides set of functions for StateOS.
 
  ******************************************************************************
@@ -29,12 +29,32 @@
 #include <os.h>
 
 /* -------------------------------------------------------------------------- */
+void msg_init( msg_t *msg, unsigned limit, void *data )
+/* -------------------------------------------------------------------------- */
+{
+	assert(!port_isr_inside());
+	assert(msg);
+	assert(limit);
+	assert(data);
+
+	port_sys_lock();
+
+	memset(msg, 0, sizeof(msg_t));
+
+	msg->limit = limit;
+	msg->data  = data;
+
+	port_sys_unlock();
+}
+
+/* -------------------------------------------------------------------------- */
 msg_t *msg_create( unsigned limit )
 /* -------------------------------------------------------------------------- */
 {
-	assert(limit);
-
 	msg_t *msg;
+
+	assert(!port_isr_inside());
+	assert(limit);
 
 	port_sys_lock();
 
@@ -55,6 +75,7 @@ msg_t *msg_create( unsigned limit )
 void msg_kill( msg_t *msg )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(msg);
 
 	port_sys_lock();
@@ -97,6 +118,7 @@ unsigned priv_msg_wait( msg_t *msg, unsigned *data, unsigned time, unsigned(*wai
 {
 	unsigned event = E_SUCCESS;
 
+	assert(!port_isr_inside() || !time);
 	assert(msg);
 	assert(data);
 
@@ -143,6 +165,7 @@ unsigned priv_msg_send( msg_t *msg, unsigned data, unsigned time, unsigned(*wait
 {
 	unsigned event = E_SUCCESS;
 
+	assert(!port_isr_inside() || !time);
 	assert(msg);
 
 	port_sys_lock();

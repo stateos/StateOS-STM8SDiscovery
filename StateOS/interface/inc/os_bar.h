@@ -2,7 +2,7 @@
 
     @file    StateOS: os_bar.h
     @author  Rajmund Szymanski
-    @date    24.01.2017
+    @date    24.02.2017
     @brief   This file contains definitions for StateOS.
 
  ******************************************************************************
@@ -140,6 +140,24 @@ typedef struct __bar bar_t, bar_id[1];
 
 /**********************************************************************************************************************
  *                                                                                                                    *
+ * Name              : bar_init                                                                                       *
+ *                                                                                                                    *
+ * Description       : initilize a barrier object                                                                     *
+ *                                                                                                                    *
+ * Parameters                                                                                                         *
+ *   bar             : pointer to barrier object                                                                      *
+ *   limit           : number of tasks that must call bar_wait[Until|For] function to release the barrier object      *
+ *                                                                                                                    *
+ * Return            : none                                                                                           *
+ *                                                                                                                    *
+ * Note              : use only in thread mode                                                                        *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+
+void bar_init( bar_t *bar, unsigned limit );
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
  * Name              : bar_create                                                                                     *
  *                                                                                                                    *
  * Description       : create and initilize a new barrier object                                                      *
@@ -187,7 +205,6 @@ void bar_kill( bar_t *bar );
  *   E_SUCCESS       : barrier object was successfully released                                                       *
  *   E_STOPPED       : barrier object was killed before the specified timeout expired                                 *
  *   E_TIMEOUT       : barrier object was not released before the specified timeout expired                           *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -211,7 +228,6 @@ unsigned bar_waitUntil( bar_t *bar, unsigned time );
  *   E_SUCCESS       : barrier object was successfully released                                                       *
  *   E_STOPPED       : barrier object was killed before the specified timeout expired                                 *
  *   E_TIMEOUT       : barrier object was not released before the specified timeout expired                           *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -231,7 +247,6 @@ unsigned bar_waitFor( bar_t *bar, unsigned delay );
  * Return                                                                                                             *
  *   E_SUCCESS       : barrier object was successfully released                                                       *
  *   E_STOPPED       : barrier object was killed                                                                      *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *

@@ -2,7 +2,7 @@
 
     @file    StateOS: os_mut.h
     @author  Rajmund Szymanski
-    @date    24.01.2017
+    @date    24.02.2017
     @brief   This file contains definitions for StateOS.
 
  ******************************************************************************
@@ -135,6 +135,23 @@ typedef struct __mut mut_t, mut_id[1];
 
 /**********************************************************************************************************************
  *                                                                                                                    *
+ * Name              : mut_init                                                                                       *
+ *                                                                                                                    *
+ * Description       : initilize a fast mutex object                                                                  *
+ *                                                                                                                    *
+ * Parameters                                                                                                         *
+ *   mut             : pointer to fast mutex object                                                                   *
+ *                                                                                                                    *
+ * Return            : none                                                                                           *
+ *                                                                                                                    *
+ * Note              : use only in thread mode                                                                        *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+
+void mut_init( mut_t *mut );
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
  * Name              : mut_create                                                                                     *
  *                                                                                                                    *
  * Description       : create and initilize a new fast mutex object                                                   *
@@ -182,7 +199,6 @@ void mut_kill( mut_t *mut );
  *   E_SUCCESS       : fast mutex object was successfully locked                                                      *
  *   E_STOPPED       : fast mutex object was killed before the specified timeout expired                              *
  *   E_TIMEOUT       : fast mutex object was not locked before the specified timeout expired                          *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -207,7 +223,6 @@ unsigned mut_waitUntil( mut_t *mut, unsigned time );
  *   E_SUCCESS       : fast mutex object was successfully locked                                                      *
  *   E_STOPPED       : fast mutex object was killed before the specified timeout expired                              *
  *   E_TIMEOUT       : fast mutex object was not locked before the specified timeout expired                          *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -228,7 +243,6 @@ unsigned mut_waitFor( mut_t *mut, unsigned delay );
  * Return                                                                                                             *
  *   E_SUCCESS       : fast mutex object was successfully locked                                                      *
  *   E_STOPPED       : fast mutex object was killed                                                                   *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *

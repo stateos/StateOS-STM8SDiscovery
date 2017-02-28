@@ -2,7 +2,7 @@
 
     @file    StateOS: os_bar.c
     @author  Rajmund Szymanski
-    @date    10.01.2017
+    @date    24.02.2017
     @brief   This file provides set of functions for StateOS.
 
  ******************************************************************************
@@ -29,11 +29,30 @@
 #include <os.h>
 
 /* -------------------------------------------------------------------------- */
+void bar_init( bar_t *bar, unsigned limit )
+/* -------------------------------------------------------------------------- */
+{
+	assert(!port_isr_inside());
+	assert(bar);
+	assert(limit);
+
+	port_sys_lock();
+
+	memset(bar, 0, sizeof(bar_t));
+
+	bar->count = limit;
+	bar->limit = limit;
+
+	port_sys_unlock();
+}
+
+/* -------------------------------------------------------------------------- */
 bar_t *bar_create( unsigned limit )
 /* -------------------------------------------------------------------------- */
 {
 	bar_t *bar;
 
+	assert(!port_isr_inside());
 	assert(limit);
 
 	port_sys_lock();
@@ -55,6 +74,7 @@ bar_t *bar_create( unsigned limit )
 void bar_kill( bar_t *bar )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(bar);
 	
 	port_sys_lock();
@@ -73,6 +93,7 @@ unsigned priv_bar_wait( bar_t *bar, unsigned time, unsigned(*wait)() )
 {
 	unsigned event = E_SUCCESS;
 
+	assert(!port_isr_inside());
 	assert(bar);
 
 	port_sys_lock();

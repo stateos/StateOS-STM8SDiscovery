@@ -2,7 +2,7 @@
 
     @file    StateOS: os_mtx.h
     @author  Rajmund Szymanski
-    @date    24.01.2017
+    @date    24.02.2017
     @brief   This file contains definitions for StateOS.
 
  ******************************************************************************
@@ -136,6 +136,23 @@ typedef struct __mtx mtx_id[1];
 
 /**********************************************************************************************************************
  *                                                                                                                    *
+ * Name              : mtx_init                                                                                       *
+ *                                                                                                                    *
+ * Description       : initilize a mutex object                                                                       *
+ *                                                                                                                    *
+ * Parameters                                                                                                         *
+ *   mtx             : pointer to mutex object                                                                        *
+ *                                                                                                                    *
+ * Return            : none                                                                                           *
+ *                                                                                                                    *
+ * Note              : use only in thread mode                                                                        *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+
+void mtx_init( mtx_t *mtx );
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
  * Name              : mtx_create                                                                                     *
  *                                                                                                                    *
  * Description       : create and initilize a new mutex object                                                        *
@@ -183,7 +200,6 @@ void mtx_kill( mtx_t *mtx );
  *   E_SUCCESS       : mutex object was successfully locked                                                           *
  *   E_STOPPED       : mutex object was killed before the specified timeout expired                                   *
  *   E_TIMEOUT       : mutex object was not locked before the specified timeout expired                               *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -208,7 +224,6 @@ unsigned mtx_waitUntil( mtx_t *mtx, unsigned time );
  *   E_SUCCESS       : mutex object was successfully locked                                                           *
  *   E_STOPPED       : mutex object was killed before the specified timeout expired                                   *
  *   E_TIMEOUT       : mutex object was not locked before the specified timeout expired                               *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -229,7 +244,6 @@ unsigned mtx_waitFor( mtx_t *mtx, unsigned delay );
  * Return                                                                                                             *
  *   E_SUCCESS       : mutex object was successfully locked                                                           *
  *   E_STOPPED       : mutex object was killed                                                                        *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *

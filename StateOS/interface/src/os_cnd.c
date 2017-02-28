@@ -2,7 +2,7 @@
 
     @file    StateOS: os_cnd.c
     @author  Rajmund Szymanski
-    @date    10.01.2017
+    @date    24.02.2017
     @brief   This file provides set of functions for StateOS.
 
  ******************************************************************************
@@ -29,10 +29,26 @@
 #include <os.h>
 
 /* -------------------------------------------------------------------------- */
+void cnd_init( cnd_t *cnd )
+/* -------------------------------------------------------------------------- */
+{
+	assert(!port_isr_inside());
+	assert(cnd);
+
+	port_sys_lock();
+
+	memset(cnd, 0, sizeof(cnd_t));
+
+	port_sys_unlock();
+}
+
+/* -------------------------------------------------------------------------- */
 cnd_t *cnd_create( void )
 /* -------------------------------------------------------------------------- */
 {
 	cnd_t *cnd;
+
+	assert(!port_isr_inside());
 
 	port_sys_lock();
 
@@ -47,6 +63,7 @@ cnd_t *cnd_create( void )
 void cnd_kill( cnd_t *cnd )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(cnd);
 
 	port_sys_lock();
@@ -63,7 +80,9 @@ unsigned priv_cnd_wait( cnd_t *cnd, mtx_t *mtx, unsigned time, unsigned(*wait)()
 {
 	unsigned event;
 
+	assert(!port_isr_inside());
 	assert(cnd);
+	assert(mtx);
 
 	port_sys_lock();
 

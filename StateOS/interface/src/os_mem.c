@@ -2,7 +2,7 @@
 
     @file    StateOS: os_mem.c
     @author  Rajmund Szymanski
-    @date    10.01.2017
+    @date    27.02.2017
     @brief   This file provides set of functions for StateOS.
 
  ******************************************************************************
@@ -29,10 +29,13 @@
 #include <os.h>
 
 /* -------------------------------------------------------------------------- */
-void mem_init( mem_t *mem )
+void mem_bind( mem_t *mem )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(mem);
+	assert(mem->limit);
+	assert(mem->size);
 	assert(mem->data);
 
 	port_sys_lock();
@@ -47,11 +50,35 @@ void mem_init( mem_t *mem )
 }
 
 /* -------------------------------------------------------------------------- */
+void mem_init( mem_t *mem, unsigned limit, unsigned size, void *data )
+/* -------------------------------------------------------------------------- */
+{
+	assert(!port_isr_inside());
+	assert(mem);
+	assert(limit);
+	assert(size);
+	assert(data);
+
+	port_sys_lock();
+
+	memset(mem, 0, sizeof(mem_t));
+
+	mem->limit = limit;
+	mem->size  = size;
+	mem->data  = data;
+
+	mem_bind(mem);
+
+	port_sys_unlock();
+}
+
+/* -------------------------------------------------------------------------- */
 mem_t *mem_create( unsigned limit, unsigned size )
 /* -------------------------------------------------------------------------- */
 {
 	mem_t *mem;
 
+	assert(!port_isr_inside());
 	assert(limit);
 	assert(size);
 
@@ -67,7 +94,7 @@ mem_t *mem_create( unsigned limit, unsigned size )
 		mem->size  = size;
 		mem->data  = mem + 1;
 
-		mem_init(mem);
+		mem_bind(mem);
 	}
 
 	port_sys_unlock();
@@ -79,6 +106,7 @@ mem_t *mem_create( unsigned limit, unsigned size )
 void mem_kill( mem_t *mem )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(mem);
 
 	port_sys_lock();
@@ -95,6 +123,7 @@ unsigned priv_mem_wait( mem_t *mem, void **data, unsigned time, unsigned(*wait)(
 {
 	unsigned event = E_SUCCESS;
 
+	assert(!port_isr_inside() || !time);
 	assert(mem);
 	assert(data);
 

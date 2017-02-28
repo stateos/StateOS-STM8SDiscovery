@@ -2,7 +2,7 @@
 
     @file    StateOS: os_mtx.c
     @author  Rajmund Szymanski
-    @date    10.01.2017
+    @date    24.02.2017
     @brief   This file provides set of functions for StateOS.
 
  ******************************************************************************
@@ -29,10 +29,26 @@
 #include <os.h>
 
 /* -------------------------------------------------------------------------- */
+void mtx_init( mtx_t *mtx )
+/* -------------------------------------------------------------------------- */
+{
+	assert(!port_isr_inside());
+	assert(mtx);
+
+	port_sys_lock();
+
+	memset(mtx, 0, sizeof(mtx_t));
+
+	port_sys_unlock();
+}
+
+/* -------------------------------------------------------------------------- */
 mtx_t *mtx_create( void )
 /* -------------------------------------------------------------------------- */
 {
 	mtx_t *mtx;
+
+	assert(!port_isr_inside());
 
 	port_sys_lock();
 
@@ -48,6 +64,9 @@ static
 void priv_mtx_link( mtx_t *mtx, tsk_t *tsk )
 /* -------------------------------------------------------------------------- */
 {
+	assert(mtx);
+	assert(tsk);
+
 	mtx->owner = tsk;
 
 	if (tsk)
@@ -62,6 +81,8 @@ static
 void priv_mtx_unlink( mtx_t *mtx )
 /* -------------------------------------------------------------------------- */
 {
+	assert(mtx);
+
 	tsk_t *tsk;
 	mtx_t *lst;
 
@@ -87,6 +108,7 @@ void priv_mtx_unlink( mtx_t *mtx )
 void mtx_kill( mtx_t *mtx )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(mtx);
 
 	port_sys_lock();
@@ -107,6 +129,7 @@ unsigned priv_mtx_wait( mtx_t *mtx, unsigned time, unsigned(*wait)() )
 {
 	unsigned event = E_TIMEOUT;
 
+	assert(!port_isr_inside());
 	assert(mtx);
 
 	port_sys_lock();
@@ -159,6 +182,7 @@ unsigned mtx_give( mtx_t *mtx )
 {
 	unsigned event = E_TIMEOUT;
 	
+	assert(!port_isr_inside());
 	assert(mtx);
 
 	port_sys_lock();

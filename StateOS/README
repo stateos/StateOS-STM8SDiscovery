@@ -10,26 +10,43 @@ There's a dedicated function for immediate change the task state.
 Features:
 - kernel works in preemptive or cooperative mode
 - kernel can operate in tick-less mode (32-bit timer required)
-- signals (auto clearing, protected)
+- signals (clear, protect)
 - events
-- flags (any, all, accept, ignore)
+- flags (any, all, protect, ignore)
 - barriers
 - semaphores (binary, limited, counting)
-- mutexes (recursive and priority inheritance)
-- fast mutexes (non-recursive and non-priority-inheritance)
+- mutexes (recursive, priority inheritance, robust)
+- fast mutexes (non-recursive, non-priority-inheritance, non-robust)
 - condition variables
 - memory pools
 - message queues
 - mailbox queues
 - timers (one-shot, periodic)
 - cmsis-rtos api
+- cmsis-rtos2 api
 - nasa-osal support
 - c++ wrapper
 - all documentation is contained within the source files
 - examples and templates are in separate repositories (https://github.com/stateos)
 ---------
+4.6
+- added JOINABLE constant
+- function mem_reset renamed to mem_bind
+- redefined timer macros and procedures
+---------
 4.5
 - rename flgOne to flgAny
+- added flg_clear function
+- added protection to flag object
+- added cmsis-os2 API
+- added cmsis-os2 example
+- added tsk_detach function
+- rebuilded cmsis-os1 api
+- rebuilded nasa-osal api
+- only delayed and suspended tasks can be resumed
+- tsk_wait functions return received flags or messages
+- mem_init function renamed to mem_reset
+- added xxx_init functions and corresponding example
 ---------
 4.4
 - added oslibc.c file for COSMIC Software CORTEX-M C Cross Compiler

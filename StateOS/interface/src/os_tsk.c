@@ -2,7 +2,7 @@
 
     @file    StateOS: os_tsk.c
     @author  Rajmund Szymanski
-    @date    22.01.2017
+    @date    24.02.2017
     @brief   This file provides set of functions for StateOS.
 
  ******************************************************************************
@@ -29,15 +29,39 @@
 #include <os.h>
 
 /* -------------------------------------------------------------------------- */
+void tsk_init( tsk_t *tsk, unsigned prio, fun_t *state, void *stack )
+/* -------------------------------------------------------------------------- */
+{
+	assert(!port_isr_inside());
+	assert(tsk);
+	assert(state);
+	assert(stack);
+
+	port_sys_lock();
+
+	memset(tsk, 0, sizeof(tsk_t));
+	
+	tsk->state = state;
+	tsk->top   = stack;
+	tsk->prio  = prio;
+	tsk->basic = prio;
+
+	core_ctx_init(tsk);
+	core_tsk_insert(tsk);
+
+	port_sys_unlock();
+}
+
+/* -------------------------------------------------------------------------- */
 tsk_t *tsk_create( unsigned prio, fun_t *state, unsigned size )
 /* -------------------------------------------------------------------------- */
 {
 	tsk_t *tsk;
 
+	assert(!port_isr_inside());
 	assert(state);
-	assert(size);
 
-	size = ASIZE(sizeof(tsk_t) + size);
+	size = ASIZE(sizeof(tsk_t) + size ? size : OS_STACK_SIZE);
 
 	port_sys_lock();
 
@@ -63,6 +87,7 @@ tsk_t *tsk_create( unsigned prio, fun_t *state, unsigned size )
 void tsk_start( tsk_t *tsk )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(tsk);
 	assert(tsk->state);
 
@@ -81,6 +106,7 @@ void tsk_start( tsk_t *tsk )
 void tsk_startFrom( tsk_t *tsk, fun_t *state )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(tsk);
 	assert(state);
 
@@ -101,10 +127,15 @@ void tsk_startFrom( tsk_t *tsk, fun_t *state )
 void tsk_stop( void )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
+
 	port_set_lock();
 
-//	while (Current->list) mtx_give(Current->list);
-	core_all_wakeup(&Current->join, E_SUCCESS);
+	while (Current->list)
+		mtx_kill(Current->list);
+
+	if (Current->join != DETACHED)
+		core_all_wakeup(&Current->join, E_SUCCESS);
 
 	core_tsk_remove(Current);
 
@@ -115,12 +146,16 @@ void tsk_stop( void )
 void tsk_kill( tsk_t *tsk )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(tsk);
 
 	port_sys_lock();
 
-//	while (tsk->list) mtx_kill(tsk->list);
-	core_all_wakeup(&tsk->join, E_STOPPED);
+	while (tsk->list)
+		mtx_kill(tsk->list);
+
+	if (tsk->join != DETACHED)
+		core_all_wakeup(&tsk->join, E_STOPPED);
 
 	if (tsk->obj.id == ID_READY)
 		core_tsk_remove(tsk);
@@ -135,19 +170,41 @@ void tsk_kill( tsk_t *tsk )
 }
 
 /* -------------------------------------------------------------------------- */
-unsigned tsk_join( tsk_t *tsk )
+void tsk_detach( tsk_t *tsk )
 /* -------------------------------------------------------------------------- */
 {
-	unsigned event = E_SUCCESS;
-
+	assert(!port_isr_inside());
 	assert(tsk);
 
 	port_sys_lock();
 
-	if (tsk->obj.id != ID_STOPPED)
+	if ((tsk->join != DETACHED) && (tsk->obj.id != ID_STOPPED))
 	{
-		event = core_tsk_waitFor(&tsk->join, INFINITE);
+		core_all_wakeup(&tsk->join, E_TIMEOUT);
+		tsk->join = DETACHED;
 	}
+
+	port_sys_unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+unsigned tsk_join( tsk_t *tsk )
+/* -------------------------------------------------------------------------- */
+{
+	unsigned event;
+
+	assert(!port_isr_inside());
+	assert(tsk);
+
+	port_sys_lock();
+
+	if (tsk->join == DETACHED)
+		event = E_TIMEOUT;
+	else
+	if (tsk->obj.id == ID_STOPPED)
+		event = E_SUCCESS;
+	else
+		event = core_tsk_waitFor(&tsk->join, INFINITE);
 
 	port_sys_unlock();
 
@@ -158,6 +215,8 @@ unsigned tsk_join( tsk_t *tsk )
 void tsk_yield( void )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
+
 	port_sys_lock();
 
 	core_ctx_switch();
@@ -170,6 +229,7 @@ void tsk_yield( void )
 void tsk_flip( fun_t *state )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(state);
 
 	port_set_lock();
@@ -182,6 +242,8 @@ void tsk_flip( fun_t *state )
 void tsk_prio( unsigned prio )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
+
 	port_sys_lock();
 
 	Current->basic = prio;
@@ -193,10 +255,12 @@ void tsk_prio( unsigned prio )
 
 /* -------------------------------------------------------------------------- */
 static
-unsigned priv_tsk_sleep( unsigned flags, unsigned time, unsigned(*wait)() )
+unsigned priv_tsk_wait( unsigned flags, unsigned time, unsigned(*wait)() )
 /* -------------------------------------------------------------------------- */
 {
 	unsigned event;
+
+	assert(!port_isr_inside());
 
 	port_sys_lock();
 
@@ -212,14 +276,14 @@ unsigned priv_tsk_sleep( unsigned flags, unsigned time, unsigned(*wait)() )
 unsigned tsk_waitUntil( unsigned flags, unsigned time )
 /* -------------------------------------------------------------------------- */
 {
-	return priv_tsk_sleep(flags, time, core_tsk_waitUntil);
+	return priv_tsk_wait(flags, time, core_tsk_waitUntil);
 }
 
 /* -------------------------------------------------------------------------- */
 unsigned tsk_waitFor( unsigned flags, unsigned delay )
 /* -------------------------------------------------------------------------- */
 {
-	return priv_tsk_sleep(flags, delay, core_tsk_waitFor);
+	return priv_tsk_wait(flags, delay, core_tsk_waitFor);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -230,13 +294,11 @@ void tsk_give( tsk_t *tsk, unsigned flags )
 
 	port_sys_lock();
 
-	if (tsk->obj.id == ID_DELAYED)
-	if (tsk->guard  == tsk)
+	if ((tsk->obj.id == ID_DELAYED) && (tsk->guard == tsk))
 	{
-		tsk->msg    =  flags;
 		tsk->flags &= ~flags;
 		if (tsk->flags == 0)
-		core_tsk_wakeup(tsk, E_SUCCESS);
+			core_tsk_wakeup(tsk, flags);
 	}
 
 	port_sys_unlock();
@@ -250,8 +312,8 @@ void tsk_resume( tsk_t *tsk, unsigned event )
 
 	port_sys_lock();
 
-	if (tsk->obj.id == ID_DELAYED)
-	core_tsk_wakeup(tsk, event);
+	if ((tsk->obj.id == ID_DELAYED) && (tsk->guard == &WAIT))
+		core_tsk_wakeup(tsk, event);
 
 	port_sys_unlock();
 }

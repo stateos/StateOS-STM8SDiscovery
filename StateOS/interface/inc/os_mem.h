@@ -2,7 +2,7 @@
 
     @file    StateOS: os_mem.h
     @author  Rajmund Szymanski
-    @date    24.01.2017
+    @date    27.02.2017
     @brief   This file contains definitions for StateOS.
 
  ******************************************************************************
@@ -173,9 +173,9 @@ typedef struct __mem mem_t, mem_id[1];
 
 /**********************************************************************************************************************
  *                                                                                                                    *
- * Name              : mem_init                                                                                       *
+ * Name              : mem_bind                                                                                       *
  *                                                                                                                    *
- * Description       : initialize the memory pool object                                                              *
+ * Description       : initialize data buffer of a memory pool object                                                 *
  *                                                                                                                    *
  * Parameters                                                                                                         *
  *   mem             : pointer to memory pool object                                                                  *
@@ -186,7 +186,27 @@ typedef struct __mem mem_t, mem_id[1];
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-void mem_init( mem_t *mem );
+void mem_bind( mem_t *mem );
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
+ * Name              : mem_init                                                                                       *
+ *                                                                                                                    *
+ * Description       : initilize a memory pool object                                                                 *
+ *                                                                                                                    *
+ * Parameters                                                                                                         *
+ *   mem             : pointer to memory pool object                                                                  *
+ *   limit           : size of a buffer (max number of objects)                                                       *
+ *   size            : size of memory object (in bytes)                                                               *
+ *   data            : memory pool data buffer                                                                        *
+ *                                                                                                                    *
+ * Return            : none                                                                                           *
+ *                                                                                                                    *
+ * Note              : use only in thread mode                                                                        *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+
+void mem_init( mem_t *mem, unsigned limit, unsigned size, void *data );
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -240,7 +260,6 @@ void mem_kill( mem_t *mem );
  *   E_SUCCESS       : pointer to memory object was successfully transfered to the data pointer                       *
  *   E_STOPPED       : memory pool object was killed before the specified timeout expired                             *
  *   E_TIMEOUT       : memory pool object is empty and was not received data before the specified timeout expired     *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -266,7 +285,6 @@ unsigned mem_waitUntil( mem_t *mem, void **data, unsigned time );
  *   E_SUCCESS       : pointer to memory object was successfully transfered to the data pointer                       *
  *   E_STOPPED       : memory pool object was killed before the specified timeout expired                             *
  *   E_TIMEOUT       : memory pool object is empty and was not received data before the specified timeout expired     *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -288,7 +306,6 @@ unsigned mem_waitFor( mem_t *mem, void **data, unsigned delay );
  * Return                                                                                                             *
  *   E_SUCCESS       : pointer to memory object was successfully transfered to the data pointer                       *
  *   E_STOPPED       : memory pool object was killed                                                                  *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -402,7 +419,7 @@ template<unsigned _limit, unsigned _size>
 struct MemoryPoolT : public __mem
 {
 	explicit
-	 MemoryPoolT( void ): __mem _MEM_INIT(_limit, _size, _data) { mem_init(this); }
+	 MemoryPoolT( void ): __mem _MEM_INIT(_limit, _size, _data) { mem_bind(this); }
 	~MemoryPoolT( void ) { assert(queue == nullptr); }
 
 	void     kill     ( void )                          {        mem_kill     (this);                }

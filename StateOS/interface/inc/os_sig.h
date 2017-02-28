@@ -2,7 +2,7 @@
 
     @file    StateOS: os_sig.h
     @author  Rajmund Szymanski
-    @date    24.01.2017
+    @date    24.02.2017
     @brief   This file contains definitions for StateOS.
 
  ******************************************************************************
@@ -60,7 +60,7 @@ typedef struct __sig sig_t, sig_id[1];
  *                                                                                                                    *
  * Name              : _SIG_INIT                                                                                      *
  *                                                                                                                    *
- * Description       : create and initilize an signal object                                                          *
+ * Description       : create and initilize a signal object                                                           *
  *                                                                                                                    *
  * Parameters                                                                                                         *
  *   type            : signal type                                                                                    *
@@ -113,7 +113,7 @@ typedef struct __sig sig_t, sig_id[1];
  *                                                                                                                    *
  * Name              : SIG_INIT                                                                                       *
  *                                                                                                                    *
- * Description       : create and initilize an signal object                                                          *
+ * Description       : create and initilize a signal object                                                           *
  *                                                                                                                    *
  * Parameters                                                                                                         *
  *   type            : signal type                                                                                    *
@@ -152,6 +152,26 @@ typedef struct __sig sig_t, sig_id[1];
 #define                SIG_CREATE( type ) \
                      { SIG_INIT( type ) }
 #endif
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
+ * Name              : sig_init                                                                                       *
+ *                                                                                                                    *
+ * Description       : initilize a signal object                                                                      *
+ *                                                                                                                    *
+ * Parameters                                                                                                         *
+ *   sig             : pointer to signal object                                                                       *
+ *   type            : signal type                                                                                    *
+ *                     sigClear:   auto clearing signal                                                               *
+ *                     sigProtect: protected signal                                                                   *
+ *                                                                                                                    *
+ * Return            : none                                                                                           *
+ *                                                                                                                    *
+ * Note              : use only in thread mode                                                                        *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+
+void sig_init( sig_t *sig, unsigned type );
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -201,9 +221,9 @@ void sig_kill( sig_t *sig );
  *   time            : timepoint value                                                                                *
  *                                                                                                                    *
  * Return                                                                                                             *
+ *   E_SUCCESS       : signal object was successfully released                                                        *
  *   E_STOPPED       : signal object was killed before the specified timeout expired                                  *
  *   E_TIMEOUT       : signal object was not released before the specified timeout expired                            *
- *   'another'       : signal object was successfully released or task was resumed with 'another' event value         *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -224,9 +244,9 @@ unsigned sig_waitUntil( sig_t *sig, unsigned time );
  *                     INFINITE:  wait indefinitly until the signal object has been released                          *
  *                                                                                                                    *
  * Return                                                                                                             *
+ *   E_SUCCESS       : signal object was successfully released                                                        *
  *   E_STOPPED       : signal object was killed before the specified timeout expired                                  *
  *   E_TIMEOUT       : signal object was not released before the specified timeout expired                            *
- *   'another'       : signal object was successfully released or task was resumed with 'another' event value         *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -244,8 +264,8 @@ unsigned sig_waitFor( sig_t *sig, unsigned delay );
  *   sig             : pointer to signal object                                                                       *
  *                                                                                                                    *
  * Return                                                                                                             *
- *   E_STOPPED       : signal object was killed                                                                       *
- *   'another'       : signal object was successfully released or task was resumed with 'another' event value         *
+ *   E_SUCCESS       : signal object was successfully released                                                        *
+ *   E_STOPPED       : signal object was killed before the specified timeout expired                                  *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -265,7 +285,7 @@ unsigned sig_wait( sig_t *sig ) { return sig_waitFor(sig, INFINITE); }
  *                                                                                                                    *
  * Return                                                                                                             *
  *   E_SUCCESS       : signal object was successfully released                                                        *
- *   E_TIMEOUT       : signal object was not released before the specified timeout expired                            *
+ *   E_TIMEOUT       : signal object is not set                                                                       *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -285,7 +305,7 @@ unsigned sig_take( sig_t *sig ) { return sig_waitFor(sig, IMMEDIATE); }
  *                                                                                                                    *
  * Return                                                                                                             *
  *   E_SUCCESS       : signal object was successfully released                                                        *
- *   E_TIMEOUT       : signal object was not released before the specified timeout expired                            *
+ *   E_TIMEOUT       : signal object is not set                                                                       *
  *                                                                                                                    *
  * Note              : use only in handler mode                                                                       *
  *                                                                                                                    *

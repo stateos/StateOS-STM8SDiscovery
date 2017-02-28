@@ -2,7 +2,7 @@
 
     @file    StateOS: os_lst.c
     @author  Rajmund Szymanski
-    @date    10.01.2017
+    @date    24.02.2017
     @brief   This file provides set of functions for StateOS.
 
  ******************************************************************************
@@ -29,10 +29,26 @@
 #include <os.h>
 
 /* -------------------------------------------------------------------------- */
+void lst_init( lst_t *lst )
+/* -------------------------------------------------------------------------- */
+{
+	assert(!port_isr_inside());
+	assert(lst);
+
+	port_sys_lock();
+
+	memset(lst, 0, sizeof(lst_t));
+
+	port_sys_unlock();
+}
+
+/* -------------------------------------------------------------------------- */
 lst_t *lst_create( void )
 /* -------------------------------------------------------------------------- */
 {
 	lst_t *lst;
+
+	assert(!port_isr_inside());
 
 	port_sys_lock();
 
@@ -47,6 +63,7 @@ lst_t *lst_create( void )
 void lst_kill( lst_t *lst )
 /* -------------------------------------------------------------------------- */
 {
+	assert(!port_isr_inside());
 	assert(lst);
 
 	port_sys_lock();
@@ -63,6 +80,7 @@ unsigned priv_lst_wait( lst_t *lst, void **data, unsigned time, unsigned(*wait)(
 {
 	unsigned event = E_SUCCESS;
 
+	assert(!port_isr_inside() || !time);
 	assert(lst);
 	assert(data);
 

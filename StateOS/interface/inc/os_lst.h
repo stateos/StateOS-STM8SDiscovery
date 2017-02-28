@@ -2,7 +2,7 @@
 
     @file    StateOS: os_lst.h
     @author  Rajmund Szymanski
-    @date    24.01.2017
+    @date    24.02.2017
     @brief   This file contains definitions for StateOS.
 
  ******************************************************************************
@@ -133,6 +133,23 @@ typedef struct __lst lst_t, lst_id[1];
 
 /**********************************************************************************************************************
  *                                                                                                                    *
+ * Name              : lst_init                                                                                       *
+ *                                                                                                                    *
+ * Description       : initilize a list object                                                                        *
+ *                                                                                                                    *
+ * Parameters                                                                                                         *
+ *   lst             : pointer to list object                                                                         *
+ *                                                                                                                    *
+ * Return            : none                                                                                           *
+ *                                                                                                                    *
+ * Note              : use only in thread mode                                                                        *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+
+void lst_init( lst_t *lst );
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
  * Name              : lst_create                                                                                     *
  *                                                                                                                    *
  * Description       : create and initilize a new list object                                                         *
@@ -181,7 +198,6 @@ void lst_kill( lst_t *lst );
  *   E_SUCCESS       : pointer to memory object was successfully transfered to the data pointer                       *
  *   E_STOPPED       : list object was killed before the specified timeout expired                                    *
  *   E_TIMEOUT       : list object is empty and was not received data before the specified timeout expired            *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -207,7 +223,6 @@ unsigned lst_waitUntil( lst_t *lst, void **data, unsigned time );
  *   E_SUCCESS       : pointer to memory object was successfully transfered to the data pointer                       *
  *   E_STOPPED       : list object was killed before the specified timeout expired                                    *
  *   E_TIMEOUT       : list object is empty and was not received data before the specified timeout expired            *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -229,7 +244,6 @@ unsigned lst_waitFor( lst_t *lst, void **data, unsigned delay );
  * Return                                                                                                             *
  *   E_SUCCESS       : pointer to memory object was successfully transfered to the data pointer                       *
  *   E_STOPPED       : list object was killed                                                                         *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *

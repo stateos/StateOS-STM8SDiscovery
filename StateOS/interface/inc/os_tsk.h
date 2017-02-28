@@ -2,7 +2,7 @@
 
     @file    StateOS: os_tsk.h
     @author  Rajmund Szymanski
-    @date    24.01.2017
+    @date    24.02.2017
     @brief   This file contains definitions for StateOS.
 
  ******************************************************************************
@@ -66,7 +66,7 @@ struct __tsk
 	tsk_t  * join;  // list of joined tasks
 
 	union  {
-	unsigned mode;  // used by tsk_wait, tsk_sleep functions and flag object
+	unsigned mode;  // used by flag object
 	void   * data;  // used by mailbox queue object
 	unsigned msg;   // used by message queue object
 	};
@@ -383,6 +383,27 @@ typedef struct __tsk tsk_id[1];
 
 /**********************************************************************************************************************
  *                                                                                                                    *
+ * Name              : tsk_init                                                                                       *
+ *                                                                                                                    *
+ * Description       : initilize complete work area for task object and start the task                                *
+ *                                                                                                                    *
+ * Parameters                                                                                                         *
+ *   tsk             : pointer to task object                                                                         *
+ *   prio            : initial task priority (any unsigned int value)                                                 *
+ *   state           : task state (initial task function) doesn't have to be noreturn-type                            *
+ *                     it will be executed into an infinite system-implemented loop                                   *
+ *   stack           : top of task's private stack storage                                                            *
+ *                                                                                                                    *
+ * Return            : task object                                                                                    *
+ *                                                                                                                    *
+ * Note              : use only in 'C' code                                                                           *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+
+void tsk_init( tsk_t *tsk, unsigned prio, fun_t *state, void *stack );
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
  * Name              : tsk_create                                                                                     *
  *                                                                                                                    *
  * Description       : create and initilize complete work area for task object and start the task                     *
@@ -497,6 +518,23 @@ void tsk_kill( tsk_t *tsk );
 
 /**********************************************************************************************************************
  *                                                                                                                    *
+ * Name              : tsk_detach                                                                                     *
+ *                                                                                                                    *
+ * Description       : detach given task                                                                              *
+ *                                                                                                                    *
+ * Parameters                                                                                                         *
+ *   tsk             : pointer to task object                                                                         *
+ *                                                                                                                    *
+ * Return            : none                                                                                           *
+ *                                                                                                                    *
+ * Note              : use only in thread mode                                                                        *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+
+void tsk_detach( tsk_t *tsk );
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
  * Name              : tsk_join                                                                                       *
  *                                                                                                                    *
  * Description       : delay execution of current task until termination of given task                                *
@@ -507,7 +545,7 @@ void tsk_kill( tsk_t *tsk );
  * Return                                                                                                             *
  *   E_SUCCESS       : joined task was stopped its execution                                                          *
  *   E_STOPPED       : joined task was killed                                                                         *
- *   'another'       : task was resumed with 'another' event value                                                    *
+ *   E_TIMEOUT       : joined task was detached                                                                       *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -591,13 +629,12 @@ void tsk_prio( unsigned prio );
  *                                                                                                                    *
  * Parameters                                                                                                         *
  *   flags           : all flags to wait                                                                              *
- *                     0: wait for any flag or message                                                                *
+ *                     0: wait for any flags or message                                                               *
  *   time            : timepoint value                                                                                *
  *                                                                                                                    *
  * Return                                                                                                             *
- *   E_SUCCESS       : task object resumed by the direct transfer of flags or message (tsk_give)                      *
  *   E_TIMEOUT       : task object was not released before the specified timeout expired                              *
- *   'another'       : task was resumed with 'another' event value                                                    *
+ *   'another'       : task object resumed by the direct transfer of 'another' flags or message (tsk_give)            *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -619,9 +656,8 @@ unsigned tsk_waitUntil( unsigned flags, unsigned time );
  *                     INFINITE:  delay indefinitly execution of current task                                         *
  *                                                                                                                    *
  * Return                                                                                                             *
- *   E_SUCCESS       : task object resumed by the direct transfer of flags or message (tsk_give)                      *
  *   E_TIMEOUT       : task object was not released before the specified timeout expired                              *
- *   'another'       : task was resumed with 'another' event value                                                    *
+ *   'another'       : task object resumed by the direct transfer of 'another' flags or message (tsk_give)            *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -640,8 +676,7 @@ unsigned tsk_waitFor( unsigned flags, unsigned delay );
  *                     0: wait for any flag or message                                                                *
  *                                                                                                                    *
  * Return                                                                                                             *
- *   E_SUCCESS       : task object resumed by the direct transfer of flags or message (tsk_give)                      *
- *   'another'       : task was resumed with 'another' event value                                                    *
+ *   'another'       : task object resumed by the direct transfer of 'another' flags or message (tsk_give)            *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -698,7 +733,7 @@ void tsk_giveISR( tsk_t *tsk, unsigned flags ) { tsk_give(tsk, flags); }
  *                                                                                                                    *
  * Return                                                                                                             *
  *   E_TIMEOUT       : task object successfully finished countdown                                                    *
- *   'another'       : task was resumed with 'another' event value                                                    *
+ *   'another'       : task was resumed with 'another' event value (tsk_resume)                                       *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -720,7 +755,7 @@ unsigned tsk_sleepUntil( unsigned time ) { return tmr_waitUntil(&WAIT, time); }
  *                                                                                                                    *
  * Return                                                                                                             *
  *   E_TIMEOUT       : task object successfully finished countdown                                                    *
- *   'another'       : task was resumed with 'another' event value                                                    *
+ *   'another'       : task was resumed with 'another' event value (tsk_resume)                                       *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -738,7 +773,7 @@ unsigned tsk_sleepFor( unsigned delay ) { return tmr_waitFor(&WAIT, delay); }
  * Parameters        : none                                                                                           *
  *                                                                                                                    *
  * Return                                                                                                             *
- *   'another'       : task was resumed with 'another' event value                                                    *
+ *   'another'       : task was resumed with 'another' event value (tsk_resume)                                       *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -760,7 +795,7 @@ unsigned tsk_sleep( void ) { return tmr_wait(&WAIT); }
  *                                                                                                                    *
  * Return                                                                                                             *
  *   E_TIMEOUT       : task object successfully finished countdown                                                    *
- *   'another'       : task was resumed with 'another' event value                                                    *
+ *   'another'       : task was resumed with 'another' event value (tsk_resume)                                       *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -778,7 +813,7 @@ unsigned tsk_delay( unsigned delay ) { return tsk_sleepFor(delay); }
  * Parameters        : none                                                                                           *
  *                                                                                                                    *
  * Return                                                                                                             *
- *   'another'       : task was resumed with 'another' event value                                                    *
+ *   'another'       : task was resumed with 'another' event value (tsk_resume)                                       *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -849,6 +884,8 @@ namespace ThisTask
 	void     prio      ( unsigned _prio )                   {        tsk_prio      (_prio);               }
 
 	unsigned prio      ( void )                             { return Current->prio;                       }
+	void     kill      ( void )                             {        tsk_kill      (Current);             }
+	void     detach    ( void )                             {        tsk_detach    (Current);             }
 
 	unsigned waitUntil ( unsigned _flags, unsigned _time )  { return tsk_waitUntil (_flags, _time);       }
 	unsigned waitFor   ( unsigned _flags, unsigned _delay ) { return tsk_waitFor   (_flags, _delay);      }
@@ -882,6 +919,7 @@ struct TaskT : public __tsk
 	~TaskT( void ) { assert(obj.id == ID_STOPPED); }
 
 	void     kill      ( void )                             {        tsk_kill      (this);                }
+	void     detach    ( void )                             {        tsk_detach    (this);                }
 	unsigned join      ( void )                             { return tsk_join      (this);                }
 	void     start     ( void )                             {        tsk_start     (this);                }
 	void     startFrom ( fun_t  * _state )                  {        tsk_startFrom (this, _state);        }

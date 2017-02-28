@@ -2,7 +2,7 @@
 
     @file    StateOS: os_sem.h
     @author  Rajmund Szymanski
-    @date    24.01.2017
+    @date    27.02.2017
     @brief   This file contains definitions for StateOS.
 
  ******************************************************************************
@@ -167,6 +167,28 @@ typedef struct __sem sem_t, sem_id[1];
 
 /**********************************************************************************************************************
  *                                                                                                                    *
+ * Name              : sem_init                                                                                       *
+ *                                                                                                                    *
+ * Description       : initilize a semaphore object                                                                   *
+ *                                                                                                                    *
+ * Parameters                                                                                                         *
+ *   sem             : pointer to semaphore object                                                                    *
+ *   init            : initial value of semaphore counter                                                             *
+ *   limit           : maximum value of semaphore counter                                                             *
+ *                     semBinary: binary semaphore                                                                    *
+ *                     semNormal, semCounting: counting semaphore                                                     *
+ *                     otherwise: limited semaphore                                                                   *
+ *                                                                                                                    *
+ * Return            : none                                                                                           *
+ *                                                                                                                    *
+ * Note              : use only in thread mode                                                                        *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+
+void sem_init( sem_t *sem, unsigned init, unsigned limit );
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
  * Name              : sem_create                                                                                     *
  *                                                                                                                    *
  * Description       : create and initilize a new semaphore object                                                    *
@@ -219,13 +241,12 @@ void sem_kill( sem_t *sem );
  *   E_SUCCESS       : semaphore object was successfully locked                                                       *
  *   E_STOPPED       : semaphore object was killed before the specified timeout expired                               *
  *   E_TIMEOUT       : semaphore object was not locked before the specified timeout expired                           *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-              unsigned sem_waitUntil( sem_t *sem, unsigned time );
+unsigned sem_waitUntil( sem_t *sem, unsigned time );
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -244,13 +265,12 @@ void sem_kill( sem_t *sem );
  *   E_SUCCESS       : semaphore object was successfully locked                                                       *
  *   E_STOPPED       : semaphore object was killed before the specified timeout expired                               *
  *   E_TIMEOUT       : semaphore object was not locked before the specified timeout expired                           *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-              unsigned sem_waitFor( sem_t *sem, unsigned delay );
+unsigned sem_waitFor( sem_t *sem, unsigned delay );
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -265,14 +285,13 @@ void sem_kill( sem_t *sem );
  * Return                                                                                                             *
  *   E_SUCCESS       : semaphore object was successfully locked                                                       *
  *   E_STOPPED       : semaphore object was killed                                                                    *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-                     __STATIC_INLINE
-              unsigned sem_wait( sem_t *sem ) { return sem_waitFor(sem, INFINITE); }
+__STATIC_INLINE
+unsigned sem_wait( sem_t *sem ) { return sem_waitFor(sem, INFINITE); }
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -292,8 +311,8 @@ void sem_kill( sem_t *sem );
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-                     __STATIC_INLINE
-              unsigned sem_take( sem_t *sem ) { return sem_waitFor(sem, IMMEDIATE); }
+__STATIC_INLINE
+unsigned sem_take( sem_t *sem ) { return sem_waitFor(sem, IMMEDIATE); }
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -313,8 +332,8 @@ void sem_kill( sem_t *sem );
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-                     __STATIC_INLINE
-              unsigned sem_takeISR( sem_t *sem ) { return sem_waitFor(sem, IMMEDIATE); }
+__STATIC_INLINE
+unsigned sem_takeISR( sem_t *sem ) { return sem_waitFor(sem, IMMEDIATE); }
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -331,13 +350,12 @@ void sem_kill( sem_t *sem );
  *   E_SUCCESS       : semaphore object was successfully unlocked                                                     *
  *   E_STOPPED       : semaphore object was killed before the specified timeout expired                               *
  *   E_TIMEOUT       : semaphore object was not unlocked before the specified timeout expired                         *
- *   'another'       : task was resumed with 'another' event                                                          *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-              unsigned sem_sendUntil( sem_t *sem, unsigned time );
+unsigned sem_sendUntil( sem_t *sem, unsigned time );
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -356,13 +374,12 @@ void sem_kill( sem_t *sem );
  *   E_SUCCESS       : semaphore object was successfully unlocked                                                     *
  *   E_STOPPED       : semaphore object was killed before the specified timeout expired                               *
  *   E_TIMEOUT       : semaphore object was not unlocked before the specified timeout expired                         *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-              unsigned sem_sendFor( sem_t *sem, unsigned delay );
+unsigned sem_sendFor( sem_t *sem, unsigned delay );
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -377,14 +394,13 @@ void sem_kill( sem_t *sem );
  * Return                                                                                                             *
  *   E_SUCCESS       : semaphore object was successfully unlocked                                                     *
  *   E_STOPPED       : semaphore object was killed                                                                    *
- *   'another'       : task was resumed with 'another' event value                                                    *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-                     __STATIC_INLINE
-              unsigned sem_send( sem_t *sem ) { return sem_sendFor(sem, INFINITE); }
+__STATIC_INLINE
+unsigned sem_send( sem_t *sem ) { return sem_sendFor(sem, INFINITE); }
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -404,8 +420,8 @@ void sem_kill( sem_t *sem );
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-                     __STATIC_INLINE
-              unsigned sem_give( sem_t *sem ) { return sem_sendFor(sem, IMMEDIATE); }
+__STATIC_INLINE
+unsigned sem_give( sem_t *sem ) { return sem_sendFor(sem, IMMEDIATE); }
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -425,8 +441,8 @@ void sem_kill( sem_t *sem );
  *                                                                                                                    *
  **********************************************************************************************************************/
 
-                     __STATIC_INLINE
-              unsigned sem_giveISR( sem_t *sem ) { return sem_sendFor(sem, IMMEDIATE); }
+__STATIC_INLINE
+unsigned sem_giveISR( sem_t *sem ) { return sem_sendFor(sem, IMMEDIATE); }
 
 #ifdef __cplusplus
 }

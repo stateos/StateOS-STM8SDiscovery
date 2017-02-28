@@ -2,7 +2,7 @@
 
     @file    StateOS: os_evt.h
     @author  Rajmund Szymanski
-    @date    24.01.2017
+    @date    24.02.2017
     @brief   This file contains definitions for StateOS.
 
  ******************************************************************************
@@ -132,6 +132,23 @@ typedef struct __evt evt_t, evt_id[1];
 
 /**********************************************************************************************************************
  *                                                                                                                    *
+ * Name              : evt_init                                                                                       *
+ *                                                                                                                    *
+ * Description       : initilize an event object                                                                      *
+ *                                                                                                                    *
+ * Parameters                                                                                                         *
+ *   evt             : pointer to event object                                                                        *
+ *                                                                                                                    *
+ * Return            : none                                                                                           *
+ *                                                                                                                    *
+ * Note              : use only in thread mode                                                                        *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+
+void evt_init( evt_t *evt );
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
  * Name              : evt_create                                                                                     *
  *                                                                                                                    *
  * Description       : create and initilize a new event object                                                        *
@@ -177,7 +194,7 @@ void evt_kill( evt_t *evt );
  * Return                                                                                                             *
  *   E_STOPPED       : event object was killed before the specified timeout expired                                   *
  *   E_TIMEOUT       : event object was not released before the specified timeout expired                             *
- *   'another'       : event object was successfully released or task was resumed with 'another' event value          *
+ *   'another'       : event object was successfully released                                                         *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -200,7 +217,7 @@ unsigned evt_waitUntil( evt_t *evt, unsigned time );
  * Return                                                                                                             *
  *   E_STOPPED       : event object was killed before the specified timeout expired                                   *
  *   E_TIMEOUT       : event object was not released before the specified timeout expired                             *
- *   'another'       : event object was successfully released or task was resumed with 'another' event value          *
+ *   'another'       : event object was successfully released                                                         *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
@@ -219,7 +236,7 @@ unsigned evt_waitFor( evt_t *evt, unsigned delay );
  *                                                                                                                    *
  * Return                                                                                                             *
  *   E_STOPPED       : event object was killed                                                                        *
- *   'another'       : event object was successfully released or task was resumed with 'another' event value          *
+ *   'another'       : event object was successfully released                                                         *
  *                                                                                                                    *
  * Note              : use only in thread mode                                                                        *
  *                                                                                                                    *
