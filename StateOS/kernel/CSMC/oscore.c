@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.c
     @author  Rajmund Szymanski
-    @date    25.01.2017
+    @date    05.03.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -53,7 +53,6 @@ void core_tsk_flip( void *sp )
 
 	#endasm
 
-	core_ctx_switch();
 	core_tsk_start();
 }
 
