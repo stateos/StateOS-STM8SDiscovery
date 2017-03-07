@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    24.01.2017
+    @date    07.03.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -47,11 +47,6 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 
-#define  Counter System.cnt
-#define  Current System.cur
-
-/* -------------------------------------------------------------------------- */
-
 #ifndef CPU_FREQUENCY
 #error   osconfig.h: Undefined CPU_FREQUENCY value!
 #endif
@@ -87,7 +82,15 @@ extern "C" {
 /* -------------------------------------------------------------------------- */
 
 #ifndef  OS_STACK_SIZE
-#define  OS_STACK_SIZE      256 /* default task stack size in bytes           */
+#define  OS_STACK_SIZE      128 /* default task stack size in bytes           */
+#endif
+
+#ifndef  OS_MAIN_STACK
+#define  OS_MAIN_STACK      256 /* main task stack size in bytes              */
+#endif
+
+#ifndef  OS_IDLE_STACK
+#define  OS_IDLE_STACK       32 /* idle task stack size in bytes              */
 #endif
 
 /* -------------------------------------------------------------------------- */
