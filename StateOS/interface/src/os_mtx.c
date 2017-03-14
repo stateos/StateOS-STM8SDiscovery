@@ -2,7 +2,7 @@
 
     @file    StateOS: os_mtx.c
     @author  Rajmund Szymanski
-    @date    01.03.2017
+    @date    14.03.2017
     @brief   This file provides set of functions for StateOS.
 
  ******************************************************************************
@@ -68,7 +68,6 @@ void priv_mtx_link( mtx_t *mtx, tsk_t *tsk )
 /* -------------------------------------------------------------------------- */
 {
 	assert(mtx);
-	assert(tsk);
 
 	mtx->owner = tsk;
 
