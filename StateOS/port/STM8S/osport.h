@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    20.03.2017
+    @date    21.03.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -35,6 +35,8 @@
 extern "C" {
 #endif
 
+INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
+
 /* -------------------------------------------------------------------------- */
 
 #ifndef  OS_TIMER
@@ -42,7 +44,7 @@ extern "C" {
 #endif
 
 #if      OS_TIMER > 0
-#error   osconfig.h: Incorrect OS_TIMER value! This port doesn't support tick-less mode.
+#error   osconfig.h: Incorrect OS_TIMER value! This port does not support tick-less mode.
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -125,10 +127,14 @@ typedef  uint8_t              stk_t;
 
 /* -------------------------------------------------------------------------- */
 
+#if      defined(__CSMC__)
 extern   stk_t               _stack[];
 #define  MAIN_TOP            _stack+1
+#endif
 
 /* -------------------------------------------------------------------------- */
+
+#if      defined(__CSMC__)
 
 #ifndef  __CONSTRUCTOR
 #define  __CONSTRUCTOR
@@ -143,10 +149,36 @@ extern   stk_t               _stack[];
 #define  __WFI                wfi
 #endif
 
+#elif    defined(__SDCC)
+
+#ifndef  __CONSTRUCTOR
+#define  __CONSTRUCTOR
+#endif
+#ifndef  __NO_RETURN
+#define  __NO_RETURN         _Noreturn
+#endif
+#ifndef  __STATIC_INLINE
+#define  __STATIC_INLINE      static inline
+#endif
+#ifndef  __WFI
+#define  __WFI                wfi
+#endif
+
+#endif
+
 /* -------------------------------------------------------------------------- */
+
+#if      defined(__CSMC__)
 
 #define  port_get_lock()     (char)_asm("push cc""\n""pop a")
 #define  port_put_lock(state)      _asm("push a""\n""pop cc", (char)(state))
+
+#elif    defined(__SDCC)
+
+char     port_get_lock(void);
+void     port_put_lock(char state);
+
+#endif
 
 #define  port_set_lock()            disableInterrupts()
 #define  port_clr_lock()            enableInterrupts()
@@ -188,7 +220,7 @@ void port_ctx_switchLock( void )
 __STATIC_INLINE
 void port_ctx_reset( void )
 {
-	TIM3->SR1 = ~TIM3_SR1_CC1IF;
+	TIM3->SR1 = (uint8_t) ~TIM3_SR1_CC1IF;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.c
     @author  Rajmund Szymanski
-    @date    09.12.2016
+    @date    21.03.2017
     @brief   StateOS port file for STM8S uC.
 
  ******************************************************************************
@@ -33,7 +33,7 @@
 void port_sys_init( void )
 {
 /******************************************************************************
- Put here configuration of system timer for non-tick-less mode
+ Put here configuration of system timer
 *******************************************************************************/
 
 	CLK->CKDIVR = 0;
@@ -64,13 +64,12 @@ void port_sys_init( void )
 #if OS_TIMER == 0
 
 /******************************************************************************
- Put here the procedure of interrupt handler of system timer for non-tick-less mode
+ Put here the procedure of interrupt handler of system timer
 *******************************************************************************/
 
-@interrupt
-void TIM3_UPD_OVF_BRK_IRQHandler( void )
+INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
 {
-	TIM3->SR1= ~TIM3_SR1_UIF;
+	TIM3->SR1= (uint8_t) ~TIM3_SR1_UIF;
 
 	System.cnt++;
 #if OS_ROBIN
@@ -86,5 +85,39 @@ void TIM3_UPD_OVF_BRK_IRQHandler( void )
 *******************************************************************************/
 
 #endif//OS_TIMER
+
+/* -------------------------------------------------------------------------- */
+
+/******************************************************************************
+ Put here necessary lock / unlock procedures
+*******************************************************************************/
+
+#if defined(__SDCC)
+
+char port_get_lock(void) __naked
+{
+	__asm
+
+	push   cc
+	pop    a
+	ret
+
+	__endasm;
+}
+
+void port_put_lock(char state) __naked
+{
+	(void) state;
+	
+	__asm
+
+	push   a
+	pop    cc
+	ret
+
+	__endasm;
+}
+
+#endif // __SDCC
 
 /* -------------------------------------------------------------------------- */
