@@ -2,7 +2,7 @@
 
     @file    StateOS: osbase.h
     @author  Rajmund Szymanski
-    @date    10.03.2017
+    @date    25.03.2017
     @brief   This file contains basic definitions for StateOS.
 
  ******************************************************************************
@@ -131,37 +131,6 @@ struct __sys
 #endif
 #endif
 };
-
-/* -------------------------------------------------------------------------- */
-
-// task context
-
-typedef struct __ctx ctx_t;
-
-struct __ctx
-{
-	char     dummy; // sp is a pointer to the first free byte on the stack
-	// context saved by the software
-	char     c_lreg[4];
-	char     c_y[3];
-	char     c_x[3];
-	// context saved by the hardware
-	char     cc;
-	char     a;
-	unsigned x, y;
-FAR	void   * pc;
-};
-
-#define _CTX_INIT( pc ) { 0, { 0 }, { 0 }, { 0 }, 0x20, 0, 0, 0, (FAR void *) pc }
-
-/* -------------------------------------------------------------------------- */
-
-__STATIC_INLINE
-void port_ctx_init( ctx_t *ctx, fun_t *pc )
-{
-	ctx->cc = 0x20;
-	ctx->pc = (FAR void *) pc;
-}
 
 /* -------------------------------------------------------------------------- */
 
