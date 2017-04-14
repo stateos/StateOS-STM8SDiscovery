@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    21.03.2017
+    @date    14.04.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -104,13 +104,13 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
 /* -------------------------------------------------------------------------- */
 
 #ifndef  OS_MAIN_PRIO
-#define  OS_MAIN_PRIO         0 /* priority of main process */
+#define  OS_MAIN_PRIO         0 /* priority of main process                   */
 #endif
 
 /* -------------------------------------------------------------------------- */
 
 #ifndef  OS_ASSERT
-#define  OS_ASSERT            0 /* don't include standard assertions          */
+#define  OS_ASSERT            0 /* do not include standard assertions         */
 #endif
 
 #if     (OS_ASSERT == 0)
