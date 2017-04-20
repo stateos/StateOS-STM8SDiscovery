@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    14.04.2017
+    @date    20.04.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -149,6 +149,18 @@ extern   stk_t               _stack[];
 #define  __WFI                wfi
 #endif
 
+__STATIC_INLINE
+char _get_CC( void )
+{
+	return (char) _asm("push cc""\n""pop a");
+}
+
+__STATIC_INLINE
+void _set_CC( char cc)
+{
+	(void) _asm("push a""\n""pop cc", cc);
+}
+
 #elif    defined(__SDCC)
 
 #ifndef  __CONSTRUCTOR
@@ -164,30 +176,24 @@ extern   stk_t               _stack[];
 #define  __WFI                wfi
 #endif
 
+char _get_CC( void );
+void _set_CC( char cc);
+
 #endif
 
 /* -------------------------------------------------------------------------- */
 
-#if      defined(__CSMC__)
+#define  port_get_lock()     _get_CC()
+#define  port_put_lock(lck)  _set_CC(lck)
 
-#define  port_get_lock()     (char)_asm("push cc""\n""pop a")
-#define  port_put_lock(state)      _asm("push a""\n""pop cc", (char)(state))
+#define  port_set_lock()      disableInterrupts()
+#define  port_clr_lock()      enableInterrupts()
 
-#elif    defined(__SDCC)
+#define  port_sys_lock()      do { char __LOCK = port_get_lock(); port_set_lock()
+#define  port_sys_unlock()         port_put_lock(__LOCK); } while(0)
 
-char     port_get_lock(void);
-void     port_put_lock(char state);
-
-#endif
-
-#define  port_set_lock()            disableInterrupts()
-#define  port_clr_lock()            enableInterrupts()
-
-#define  port_sys_lock()       do { char __LOCK = port_get_lock(); port_set_lock()
-#define  port_sys_unlock()          port_put_lock(__LOCK); } while(0)
-
-#define  port_isr_lock()       do { port_set_lock()
-#define  port_isr_unlock()          port_clr_lock(); } while(0)
+#define  port_isr_lock()      do { port_set_lock()
+#define  port_isr_unlock()         port_clr_lock(); } while(0)
 
 /* -------------------------------------------------------------------------- */
 
