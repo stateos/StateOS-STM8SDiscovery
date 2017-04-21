@@ -123,17 +123,6 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
 
 /* -------------------------------------------------------------------------- */
 
-typedef  uint8_t              stk_t;
-
-/* -------------------------------------------------------------------------- */
-
-#if      defined(__CSMC__)
-extern   stk_t               _stack[];
-#define  MAIN_TOP            _stack+1
-#endif
-
-/* -------------------------------------------------------------------------- */
-
 #if      defined(__CSMC__)
 
 #ifndef  __CONSTRUCTOR

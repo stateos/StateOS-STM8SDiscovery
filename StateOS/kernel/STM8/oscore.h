@@ -37,6 +37,18 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 
+typedef  uint8_t              stk_t;
+
+#if      defined(__CSMC__)
+extern   stk_t               _stack[];
+#define  MAIN_TOP            _stack+1
+#endif
+
+#define ASIZE( size ) \
+ (((unsigned)( size )+(sizeof(stk_t)-1))/sizeof(stk_t))
+
+/* -------------------------------------------------------------------------- */
+
 // task context
 
 typedef struct __ctx ctx_t;
