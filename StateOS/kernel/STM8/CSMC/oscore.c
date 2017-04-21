@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.c
     @author  Rajmund Szymanski
-    @date    08.03.2017
+    @date    21.04.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -33,26 +33,17 @@
 
 /* -------------------------------------------------------------------------- */
 
-#define  port_get_sp()     (void *)_asm("ldw x, sp")
-#define  port_set_sp(sp)           _asm("ldw sp, x", (unsigned)(sp))
-
 @interrupt @svlreg
 void TIM3_CAP_COM_IRQHandler( void )
 {
-	port_set_sp(core_tsk_handler(port_get_sp()));
+	_set_SP(core_tsk_handler(_get_SP()));
 }
 
 /* -------------------------------------------------------------------------- */
 
 void core_tsk_flip( void *sp )
 {
-	#asm
-
-	decw   x
-	ldw    sp,    x
-
-	#endasm
-
+	_set_SP((char *)sp - 1);
 	core_tsk_loop();
 }
 

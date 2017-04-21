@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.h
     @author  Rajmund Szymanski
-    @date    26.03.2017
+    @date    21.04.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -41,6 +41,8 @@ extern "C" {
 
 typedef struct __ctx ctx_t;
 
+#if   defined(__CSMC__)
+
 struct __ctx
 {
 	char     dummy; // sp is a pointer to the first free byte on the stack
@@ -55,6 +57,8 @@ struct __ctx
 FAR	void   * pc;
 };
 
+#endif
+
 #define _CTX_INIT( pc ) { 0, { 0 }, { 0 }, { 0 }, 0x20, 0, 0, 0, (FAR void *) pc }
 
 /* -------------------------------------------------------------------------- */
@@ -64,6 +68,55 @@ void port_ctx_init( ctx_t *ctx, fun_t *pc )
 {
 	ctx->cc = 0x20;
 	ctx->pc = (FAR void *) pc;
+}
+
+/* -------------------------------------------------------------------------- */
+
+#if   defined(__CSMC__)
+
+#define _get_SP()    (void *)_asm("ldw x, sp")
+#define _set_SP(sp)  (void)  _asm("ldw sp, x", (void *)(sp))
+
+#define _get_CC()    (char)  _asm("push cc""\n""pop a")
+#define _set_CC(cc)  (void)  _asm("push a""\n""pop cc", (char)(cc))
+
+#elif defined(__SDCC)
+
+char _get_CC( void );
+void _set_CC( char cc);
+
+#endif
+
+/* -------------------------------------------------------------------------- */
+
+#define  port_get_lock()     _get_CC()
+#define  port_put_lock(lck)  _set_CC(lck)
+
+#define  port_set_lock()      disableInterrupts()
+#define  port_clr_lock()      enableInterrupts()
+
+#define  port_sys_lock()      do { char __LOCK = port_get_lock(); port_set_lock()
+#define  port_sys_unlock()         port_put_lock(__LOCK); } while(0)
+
+#define  port_isr_lock()      do { port_set_lock()
+#define  port_isr_unlock()         port_clr_lock(); } while(0)
+
+/* -------------------------------------------------------------------------- */
+
+__STATIC_INLINE
+void port_ctx_switchNow( void )
+{
+	port_ctx_switch();
+	port_clr_lock();
+}
+
+/* -------------------------------------------------------------------------- */
+
+__STATIC_INLINE
+void port_ctx_switchLock( void )
+{
+	port_ctx_switchNow();
+	port_set_lock();
 }
 
 /* -------------------------------------------------------------------------- */
