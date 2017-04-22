@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    21.04.2017
+    @date    22.04.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -29,6 +29,7 @@
 #ifndef __STATEOSPORT_H
 #define __STATEOSPORT_H
 
+#include <stm8s.h>
 #include <osconfig.h>
 
 #ifdef __cplusplus
