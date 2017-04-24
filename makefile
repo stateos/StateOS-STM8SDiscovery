@@ -1,7 +1,7 @@
 #**********************************************************#
 #file     makefile
 #author   Rajmund Szymanski
-#date     23.11.2016
+#date     23.04.2017
 #brief    STM8 makefile.
 #**********************************************************#
 
@@ -49,7 +49,6 @@ VPATH      := $(sort $(call DTREE,) $(foreach d,$(DIRS),$(call DTREE,$d/)))
 
 INC_DIRS   := $(sort $(dir $(foreach d,$(VPATH),$(wildcard $d*.h))))
 LIB_DIRS   := $(sort $(dir $(foreach d,$(VPATH),$(wildcard $d*.sm8))))
-MAKE_FILES :=     $(notdir $(foreach d,$(VPATH),$(wildcard $d*makefile* $d*.mk)))
 AS_SRCS    :=              $(foreach d,$(VPATH),$(wildcard $d*.s))
 CC_SRCS    :=              $(foreach d,$(VPATH),$(wildcard $d*.c))
 LIB_SRCS   :=     $(notdir $(foreach d,$(VPATH),$(wildcard $d*.sm8)))
@@ -106,14 +105,12 @@ lib : $(OBJS)
 	$(info Creating library: $(LIB))
 	$(AR) -c -p $(LIB) $?
 
-$(BIN) : $(SCRIPT) $(OBJS)
+$(BIN) : $(MAKEFILE_LIST) $(OBJS) $(SCRIPT)
 	$(info Creating BIN image: $(BIN))
 ifeq ($(strip $(SCRIPT)),)
 	$(error No linker file in project)
 endif
 	$(LD) -o $@ $(LD_FLAGS) $(SCRIPT) $(OBJS) $(LIBS_F)
-
-$(OBJS) : $(MAKE_FILES)
 
 %.o : %.s
 	$(AS) $(AS_FLAGS) $<

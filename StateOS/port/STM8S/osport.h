@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    22.04.2017
+    @date    24.04.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -44,7 +44,7 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
 #define  OS_TIMER             0
 #endif
 
-#if      OS_TIMER > 0
+#if      OS_TIMER
 #error   osconfig.h: Incorrect OS_TIMER value! This port does not support tick-less mode.
 #endif
 
@@ -58,13 +58,11 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
 
 #ifndef  OS_FREQUENCY
 #define  OS_FREQUENCY      1000 /* Hz */
-#else
+#endif
 
 #if     (OS_FREQUENCY > 1000)
 #error   osconfig.h: Incorrect OS_FREQUENCY value!
 #endif
-
-#endif //OS_FREQUENCY
 
 /* -------------------------------------------------------------------------- */
 
