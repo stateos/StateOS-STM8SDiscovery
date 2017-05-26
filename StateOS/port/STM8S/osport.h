@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    24.04.2017
+    @date    26.05.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -169,7 +169,6 @@ void port_ctx_switch( void )
 __STATIC_INLINE
 void port_ctx_reset( void )
 {
-	TIM3->SR1 = (uint8_t) ~TIM3_SR1_CC1IF;
 }
 
 /* -------------------------------------------------------------------------- */
