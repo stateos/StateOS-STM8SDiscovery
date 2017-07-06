@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.h
     @author  Rajmund Szymanski
-    @date    21.04.2017
+    @date    06.07.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -37,14 +37,17 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 
+typedef  uint8_t              lck_t;
 typedef  uint8_t              stk_t;
+
+/* -------------------------------------------------------------------------- */
 
 #if      defined(__CSMC__)
 extern   stk_t               _stack[];
 #define  MAIN_TOP            _stack+1
 #endif
 
-#define ASIZE( size ) \
+#define  ASIZE( size ) \
  (((unsigned)( size )+(sizeof(stk_t)-1))/sizeof(stk_t))
 
 /* -------------------------------------------------------------------------- */
@@ -89,13 +92,13 @@ void port_ctx_init( ctx_t *ctx, fun_t *pc )
 #define _get_SP()    (void *)_asm("ldw x, sp")
 #define _set_SP(sp)  (void)  _asm("ldw sp, x", (void *)(sp))
 
-#define _get_CC()    (char)  _asm("push cc""\n""pop a")
-#define _set_CC(cc)  (void)  _asm("push a""\n""pop cc", (char)(cc))
+#define _get_CC()    (lck_t) _asm("push cc""\n""pop a")
+#define _set_CC(cc)  (void)  _asm("push a""\n""pop cc", (lck_t)(cc))
 
 #elif defined(__SDCC)
 
 char _get_CC( void );
-void _set_CC( char cc);
+void _set_CC( lck_t cc);
 
 #endif
 
@@ -107,11 +110,14 @@ void _set_CC( char cc);
 #define  port_set_lock()      disableInterrupts()
 #define  port_clr_lock()      enableInterrupts()
 
-#define  port_sys_lock()      do { char __LOCK = port_get_lock(); port_set_lock()
+#define  port_sys_lock()      do { lck_t __LOCK = port_get_lock(); port_set_lock()
 #define  port_sys_unlock()         port_put_lock(__LOCK); } while(0)
 
 #define  port_isr_lock()      do { port_set_lock()
 #define  port_isr_unlock()         port_clr_lock(); } while(0)
+
+#define  port_cnt_lock()      do { lck_t __LOCK = port_get_lock(); port_set_lock()
+#define  port_cnt_unlock()         port_put_lock(__LOCK); } while(0)
 
 /* -------------------------------------------------------------------------- */
 
