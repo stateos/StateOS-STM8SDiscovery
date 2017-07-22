@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    12.07.2017
+    @date    22.07.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -123,12 +123,14 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
 /* -------------------------------------------------------------------------- */
 
 #ifndef  OS_FUNCTIONAL
-#define  OS_FUNCTIONAL        0 /* c++ functional library header not included */
-#endif
 
-#if      OS_FUNCTIONAL && defined(__cplusplus)
+#define  OS_FUNCTIONAL        0 /* c++ functional library header not included */
+
+#elif    OS_FUNCTIONAL
+
 #error   c++ functional library not allowed for this compiler.
-#endif
+
+#endif //OS_FUNCTIONAL
 
 /* -------------------------------------------------------------------------- */
 
