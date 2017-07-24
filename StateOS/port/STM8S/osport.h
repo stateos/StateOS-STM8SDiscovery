@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    23.07.2017
+    @date    24.07.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -31,6 +31,7 @@
 
 #include <stm8s.h>
 #include <osconfig.h>
+#include <osdefs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,12 +73,6 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
 
 #if     (OS_ROBIN > OS_FREQUENCY)
 #error   osconfig.h: Incorrect OS_ROBIN value!
-#endif
-
-/* -------------------------------------------------------------------------- */
-
-#ifndef  __STATIC_INLINE
-#define  __STATIC_INLINE      static inline
 #endif
 
 /* -------------------------------------------------------------------------- */

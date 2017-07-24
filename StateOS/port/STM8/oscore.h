@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.h
     @author  Rajmund Szymanski
-    @date    23.07.2017
+    @date    24.07.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -81,26 +81,6 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 
-#if      defined(__SDCC)
-
-#ifndef  __NO_RETURN
-#define  __NO_RETURN         _Noreturn
-#endif
-
-#endif
-
-#ifndef  __CONSTRUCTOR
-#define  __CONSTRUCTOR
-#endif
-#ifndef  __NO_RETURN
-#define  __NO_RETURN
-#endif
-#ifndef  __WFI
-#define  __WFI                wfi
-#endif
-
-/* -------------------------------------------------------------------------- */
-
 typedef  uint8_t              lck_t;
 typedef  uint8_t              stk_t;
 
@@ -112,7 +92,7 @@ extern   stk_t               _stack[];
 #endif
 
 #define  ASIZE( size ) \
- (((unsigned)( size )+(sizeof(stk_t)-1))/sizeof(stk_t))
+  (((unsigned)( size )+(sizeof(stk_t)-1))/sizeof(stk_t))
 
 /* -------------------------------------------------------------------------- */
 
