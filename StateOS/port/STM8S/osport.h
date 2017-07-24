@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    22.07.2017
+    @date    23.07.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -76,94 +76,8 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
 
 /* -------------------------------------------------------------------------- */
 
-#ifndef  OS_HEAP_SIZE
-#define  OS_HEAP_SIZE         0 /* default system heap: all free memory       */
-#endif
-
-/* -------------------------------------------------------------------------- */
-
-#ifndef  OS_STACK_SIZE
-#define  OS_STACK_SIZE      128 /* default task stack size in bytes           */
-#endif
-
-#ifndef  OS_IDLE_STACK
-#define  OS_IDLE_STACK       32 /* idle task stack size in bytes              */
-#endif
-
-/* -------------------------------------------------------------------------- */
-
-#ifndef  OS_LOCK_LEVEL
-#define  OS_LOCK_LEVEL        0 /* critical section blocks all interrupts */
-#endif
-
-#if      OS_LOCK_LEVEL > 0
-#error   osconfig.h: Incorrect OS_LOCK_LEVEL value! Must be 0.
-#endif
-
-/* -------------------------------------------------------------------------- */
-
-#ifndef  OS_MAIN_PRIO
-#define  OS_MAIN_PRIO         0 /* priority of main process                   */
-#endif
-
-/* -------------------------------------------------------------------------- */
-
-#ifndef  OS_ASSERT
-#define  OS_ASSERT            0 /* do not include standard assertions         */
-#endif
-
-#if     (OS_ASSERT == 0)
-#ifndef  NDEBUG
-#define  NDEBUG
-#endif
-#endif
-
-#include <assert.h>
-
-/* -------------------------------------------------------------------------- */
-
-#ifndef  OS_FUNCTIONAL
-
-#define  OS_FUNCTIONAL        0 /* c++ functional library header not included */
-
-#elif    OS_FUNCTIONAL
-
-#error   c++ functional library not allowed for this compiler.
-
-#endif //OS_FUNCTIONAL
-
-/* -------------------------------------------------------------------------- */
-
-#if      defined(__CSMC__)
-
-#ifndef  __CONSTRUCTOR
-#define  __CONSTRUCTOR
-#endif
-#ifndef  __NO_RETURN
-#define  __NO_RETURN
-#endif
 #ifndef  __STATIC_INLINE
 #define  __STATIC_INLINE      static inline
-#endif
-#ifndef  __WFI
-#define  __WFI                wfi
-#endif
-
-#elif    defined(__SDCC)
-
-#ifndef  __CONSTRUCTOR
-#define  __CONSTRUCTOR
-#endif
-#ifndef  __NO_RETURN
-#define  __NO_RETURN         _Noreturn
-#endif
-#ifndef  __STATIC_INLINE
-#define  __STATIC_INLINE      static inline
-#endif
-#ifndef  __WFI
-#define  __WFI                wfi
-#endif
-
 #endif
 
 /* -------------------------------------------------------------------------- */
