@@ -6,7 +6,7 @@
 #**********************************************************#
 
 COSMIC     := c:/sys/cosmic/cxstm8/
-GNUCC      := c:/sys/gcc/bin/arm-none-eabi-
+GNUCC      := c:/sys/gcc-arm/bin/arm-none-eabi-
 STVP       := c:/sys/tools/stvp/stvp_cmdline -BoardName=ST-LINK -Port=USB -ProgMode=SWIM -Device=STM8S105x6 -verif -no_loop -no_log
 
 #----------------------------------------------------------#

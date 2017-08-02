@@ -1,26 +1,21 @@
 #include <os.h>
 #include <led.h>
 
-OS_SEM(sem, 0, semCounting);
+OS_SEM(sem, 0, semNormal);
 
-void slave()
+OS_TSK_DEF(sla, 0)
 {
 	sem_wait(sem);
-
 	LED_Tick();
 }
 
-void master()
+OS_TSK_DEF(mas, 0)
 {
 	tsk_delay(SEC);
-
 	sem_give(sem);
 }
 
-OS_TSK(sla, 0, slave);
-OS_TSK(mas, 0, master);
-
-void main()
+int main(void)
 {
 	LED_Init();
 

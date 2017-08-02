@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.c
     @author  Rajmund Szymanski
-    @date    14.07.2017
+    @date    01.08.2017
     @brief   StateOS port file for STM8S uC.
 
  ******************************************************************************
@@ -32,8 +32,10 @@
 
 void port_sys_init( void )
 {
+#if OS_TICKLESS == 0
+
 /******************************************************************************
- Put here configuration of system timer
+ Put here configuration of system timer for non-tick-less mode
 *******************************************************************************/
 
 	CLK->CKDIVR = 0;
@@ -56,20 +58,25 @@ void port_sys_init( void )
  End of configuration
 *******************************************************************************/
 
+#endif//OS_TICKLESS
+
 	enableInterrupts();
 }
 
 /* -------------------------------------------------------------------------- */
 
-#if OS_TIMER == 0
+#if OS_TICKLESS == 0
 
 /******************************************************************************
- Put here the procedure of interrupt handler of system timer
+ Put here the procedure of interrupt handler of system timer for non-tick-less mode
 *******************************************************************************/
 
+#if defined(__CSMC__)
+@svlreg
+#endif
 INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
 {
-	TIM3->SR1= (uint8_t) ~TIM3_SR1_UIF;
+	TIM3->SR1 = (uint8_t) ~TIM3_SR1_UIF;
 	System.cnt++;
 #if OS_ROBIN
 	core_tmr_handler();
@@ -83,6 +90,6 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
  End of the procedure of interrupt handler
 *******************************************************************************/
 
-#endif//OS_TIMER
+#endif//OS_TICKLESS
 
 /* -------------------------------------------------------------------------- */
