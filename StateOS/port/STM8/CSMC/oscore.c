@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.c
     @author  Rajmund Szymanski
-    @date    13.07.2017
+    @date    08.08.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -29,16 +29,6 @@
 #if defined(__CSMC__)
 
 #include <oskernel.h>
-
-/* -------------------------------------------------------------------------- */
-
-@interrupt @svlreg
-void TIM3_CAP_COM_IRQHandler( void )
-{
-	TIM3->SR1 = ~TIM3_SR1_CC1IF;
-
-	_set_SP(core_tsk_handler(_get_SP()));
-}
 
 /* -------------------------------------------------------------------------- */
 

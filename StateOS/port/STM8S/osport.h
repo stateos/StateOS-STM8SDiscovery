@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    01.08.2017
+    @date    08.08.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -38,6 +38,7 @@ extern "C" {
 #endif
 
 INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
+INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler,     16);
 
 /* -------------------------------------------------------------------------- */
 

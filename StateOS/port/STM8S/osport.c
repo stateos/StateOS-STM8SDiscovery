@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.c
     @author  Rajmund Szymanski
-    @date    01.08.2017
+    @date    08.08.2017
     @brief   StateOS port file for STM8S uC.
 
  ******************************************************************************
@@ -32,16 +32,16 @@
 
 void port_sys_init( void )
 {
-#if OS_TICKLESS == 0
-
-/******************************************************************************
- Put here configuration of system timer for non-tick-less mode
-*******************************************************************************/
-
 	CLK->CKDIVR = 0;
 	CLK->ECKR  |= CLK_ECKR_HSEEN; while ((CLK->ECKR & CLK_ECKR_HSERDY) == 0);
 	CLK->SWCR  |= CLK_SWCR_SWEN;
 	CLK->SWR    = 0xB4; /* HSE */ while ((CLK->SWCR & CLK_SWCR_SWBSY)  == 1);
+
+#if OS_TICKLESS == 0
+
+/******************************************************************************
+ Non-tick-less mode: configuration of system timer
+*******************************************************************************/
 
 	#define  CNT_(X)   ((X)>>0?(X)>>1?(X)>>2?(X)>>3?(X)>>4?(X)>>5?(X)>>6?(X)>>7?(X)>>8?(X)>>9?1/0:9:8:7:6:5:4:3:2:1:0)
 	#define  PSC_ CNT_ ((CPU_FREQUENCY/OS_FREQUENCY-1)>>16)
@@ -68,7 +68,7 @@ void port_sys_init( void )
 #if OS_TICKLESS == 0
 
 /******************************************************************************
- Put here the procedure of interrupt handler of system timer for non-tick-less mode
+ Non-tick-less mode: interrupt handler of system timer
 *******************************************************************************/
 
 #if defined(__CSMC__)
@@ -78,18 +78,39 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
 {
 	TIM3->SR1 = (uint8_t) ~TIM3_SR1_UIF;
 	System.cnt++;
-#if OS_ROBIN
+	#if OS_ROBIN
 	core_tmr_handler();
 	System.dly++;
 	if (System.dly >= OS_FREQUENCY/OS_ROBIN)
 	core_ctx_switch();
-#endif
+	#endif
 }
 
 /******************************************************************************
- End of the procedure of interrupt handler
+ End of the handler
 *******************************************************************************/
 
 #endif//OS_TICKLESS
+
+/******************************************************************************
+ Interrupt handler for context switch
+*******************************************************************************/
+
+#if defined(__CSMC__)
+@svlreg
+#endif
+INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler, 16)
+{
+	void *sp;
+
+	TIM3->SR1 = (uint8_t) ~TIM3_SR1_CC1IF;
+	sp = _get_SP();
+	core_tsk_handler(sp);
+	_set_SP(sp);
+}
+
+/******************************************************************************
+ End of the handler
+*******************************************************************************/
 
 /* -------------------------------------------------------------------------- */
