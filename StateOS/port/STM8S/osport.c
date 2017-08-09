@@ -41,6 +41,7 @@ void port_sys_init( void )
 
 /******************************************************************************
  Non-tick-less mode: configuration of system timer
+ It must generate interrupts with frequency OS_FREQUENCY
 *******************************************************************************/
 
 	#define  CNT_(X)   ((X)>>0?(X)>>1?(X)>>2?(X)>>3?(X)>>4?(X)>>5?(X)>>6?(X)>>7?(X)>>8?(X)>>9?1/0:9:8:7:6:5:4:3:2:1:0)
