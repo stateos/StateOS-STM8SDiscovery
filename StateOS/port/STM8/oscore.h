@@ -113,12 +113,12 @@ struct __ctx
 	char     cc;
 	char     a;
 	unsigned x, y;
-FAR	void   * pc;
+FAR	fun_t  * pc;
 };
 
 #endif
 
-#define _CTX_INIT( pc ) { 0, { 0 }, { 0 }, { 0 }, 0x20, 0, 0, 0, (FAR void *) pc }
+#define _CTX_INIT( pc ) { 0, { 0 }, { 0 }, { 0 }, 0x20, 0, 0, 0, (FAR fun_t *) pc }
 
 /* -------------------------------------------------------------------------- */
 
@@ -126,7 +126,7 @@ __STATIC_INLINE
 void port_ctx_init( ctx_t *ctx, fun_t *pc )
 {
 	ctx->cc = 0x20;
-	ctx->pc = (FAR void *) pc;
+	ctx->pc = (FAR fun_t *) pc;
 }
 
 /* -------------------------------------------------------------------------- */
