@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.c
     @author  Rajmund Szymanski
-    @date    08.08.2017
+    @date    11.08.2017
     @brief   StateOS port file for STM8S uC.
 
  ******************************************************************************
@@ -102,12 +102,9 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
 #endif
 INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler, 16)
 {
-	void *sp;
-
 	TIM3->SR1 = (uint8_t) ~TIM3_SR1_CC1IF;
-	sp = _get_SP();
-	core_tsk_handler(sp);
-	_set_SP(sp);
+
+	_set_SP(core_tsk_handler(_get_SP()));
 }
 
 /******************************************************************************
