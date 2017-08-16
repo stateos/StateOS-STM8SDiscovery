@@ -140,10 +140,7 @@
   #define MEMCPY memcpy
  #endif /* STM8S208 or STM8S207 or STM8S007 or STM8AF62Ax or STM8AF52Ax */ 
 #elif defined(_SDCC_) /* __SDCC */
- #define FAR  __far
  #define NEAR
- #define TINY __tiny
- #define EEPROM __eeprom
  #define CONST  const
 #else /*_IAR_*/
  #define FAR  __far
