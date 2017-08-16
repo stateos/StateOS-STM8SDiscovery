@@ -9,34 +9,25 @@
 
 /* -------------------------------------------------------------------------- */
 
-// m³odsze bity
-#define __CTZ( msk )         \
-	((((msk)&0xFF)==0) ? 8 : \
-	 (((msk)&0x7F)==0) ? 7 : \
-	 (((msk)&0x3F)==0) ? 6 : \
-	 (((msk)&0x1F)==0) ? 5 : \
-	 (((msk)&0x0F)==0) ? 4 : \
-	 (((msk)&0x07)==0) ? 3 : \
-	 (((msk)&0x03)==0) ? 2 : \
-	 (((msk)&0x01)==0) ? 1 : 0)
+#define __bit_ctz01( mask ) ((((mask) << 31) == 0) ? 1 : 0)
+#define __bit_ctz02( mask ) ((((mask) << 31) == 0) ? ( 1 + __bit_ctz01((mask) >>  1)) : __bit_ctz01(mask))
+#define __bit_ctz04( mask ) ((((mask) << 30) == 0) ? ( 2 + __bit_ctz02((mask) >>  2)) : __bit_ctz02(mask))
+#define __bit_ctz08( mask ) ((((mask) << 28) == 0) ? ( 4 + __bit_ctz04((mask) >>  4)) : __bit_ctz04(mask))
+#define __bit_ctz16( mask ) ((((mask) << 24) == 0) ? ( 8 + __bit_ctz08((mask) >>  8)) : __bit_ctz08(mask))
+#define __bit_ctz32( mask ) ((((mask) << 16) == 0) ? (16 + __bit_ctz16((mask) >> 16)) : __bit_ctz16(mask))
+
+#define __bit_clz01( mask ) ((((mask) >> 31) == 0) ? 1 : 0)
+#define __bit_clz02( mask ) ((((mask) >> 31) == 0) ? ( 1 + __bit_clz01((mask) <<  1)) : __bit_clz01(mask))
+#define __bit_clz04( mask ) ((((mask) >> 30) == 0) ? ( 2 + __bit_clz02((mask) <<  2)) : __bit_clz02(mask))
+#define __bit_clz08( mask ) ((((mask) >> 28) == 0) ? ( 4 + __bit_clz04((mask) <<  4)) : __bit_clz04(mask))
+#define __bit_clz16( mask ) ((((mask) >> 24) == 0) ? ( 8 + __bit_clz08((mask) <<  8)) : __bit_clz08(mask))
+#define __bit_clz32( mask ) ((((mask) >> 16) == 0) ? (16 + __bit_clz16((mask) << 16)) : __bit_clz16(mask))
 
 /* -------------------------------------------------------------------------- */
 
-// starsze bity
-#define __CLZ( msk )         \
-	((((msk)&0xFF)==0) ? 8 : \
-	 (((msk)&0xFE)==0) ? 7 : \
-	 (((msk)&0xFC)==0) ? 6 : \
-	 (((msk)&0xF8)==0) ? 5 : \
-	 (((msk)&0xF0)==0) ? 4 : \
-	 (((msk)&0xE0)==0) ? 3 : \
-	 (((msk)&0xC0)==0) ? 2 : \
-	 (((msk)&0x80)==0) ? 1 : 0)
-
-/* -------------------------------------------------------------------------- */
-
-// szerokoœæ pola bitowego
-#define __CNT( msk )  (8-__CLZ(((msk)&0xFF)>>__CTZ(msk)))
+#define __CTZ( mask )            __bit_ctz08(((uint32_t)(mask)      ) | 0xFFFFFF00)
+#define __CLZ( mask )            __bit_clz08(((uint32_t)(mask) << 24) | 0x00FFFFFF)
+#define __CNT( mask )       (8 - __CLZ(((mask) & 0xFF) >> __CTZ(mask)))
 
 /* -------------------------------------------------------------------------- */
 
