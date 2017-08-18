@@ -1,12 +1,11 @@
 #**********************************************************#
 #file     makefile
 #author   Rajmund Szymanski
-#date     23.04.2017
+#date     06.05.2017
 #brief    STM8 makefile.
 #**********************************************************#
 
 COSMIC     := c:/sys/cosmic/cxstm8/
-GNUCC      := c:/sys/gcc-arm/bin/arm-none-eabi-
 STVP       := c:/sys/tools/stvp/stvp_cmdline -BoardName=ST-LINK -Port=USB -ProgMode=SWIM -Device=STM8S105x6 -verif -no_loop -no_log
 
 #----------------------------------------------------------#
@@ -35,7 +34,7 @@ AR         := $(COSMIC)clib
 DUMP       := $(COSMIC)chex
 COPY       := $(COSMIC)cvdwarf
 LABS       := $(COSMIC)clabs
-SIZE       := $(GNUCC)size
+SIZE       := size
 
 RM         ?= rm -f
 
@@ -105,12 +104,14 @@ lib : $(OBJS)
 	$(info Creating library: $(LIB))
 	$(AR) -c -p $(LIB) $?
 
-$(BIN) : $(MAKEFILE_LIST) $(OBJS) $(SCRIPT)
+$(BIN) : $(OBJS) $(SCRIPT)
 	$(info Creating BIN image: $(BIN))
 ifeq ($(strip $(SCRIPT)),)
 	$(error No linker file in project)
 endif
 	$(LD) -o $@ $(LD_FLAGS) $(SCRIPT) $(OBJS) $(LIBS_F)
+
+$(OBJS) : $(MAKEFILE_LIST)
 
 %.o : %.s
 	$(AS) $(AS_FLAGS) $<

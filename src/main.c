@@ -6,7 +6,7 @@ OS_SEM(sem, 0, semNormal);
 OS_TSK_DEF(sla, 0)
 {
 	sem_wait(sem);
-	LED_Tick();
+	led_toggle();
 }
 
 OS_TSK_DEF(mas, 0)
@@ -17,8 +17,7 @@ OS_TSK_DEF(mas, 0)
 
 int main(void)
 {
-	LED_Init();
-
+	led_init();
 	sys_init();
 	tsk_start(sla);
 	tsk_start(mas);

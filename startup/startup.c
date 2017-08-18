@@ -1,5 +1,3 @@
-void _stext(); // startup routine
-
 void TRAP_IRQHandler();
 void TLI_IRQHandler();
 void AWU_IRQHandler();
@@ -35,6 +33,10 @@ void ADC2_IRQHandler();
 void TIM4_UPD_OVF_IRQHandler();
 void TIM6_UPD_OVF_TRG_IRQHandler();
 void EEPROM_EEC_IRQHandler();
+
+#ifdef  __CSMC__
+
+void _stext(); // startup routine
 
 #pragma section const { vector }
 
@@ -115,3 +117,5 @@ void (* const @vector _vectab[32])() =
 /* 28 */  0,
 /* 29 */  0,
 };
+
+#endif//__CSMC__
