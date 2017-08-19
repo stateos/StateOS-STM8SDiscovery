@@ -139,7 +139,7 @@
   /*!< Used with memory Models for code less than 64K */
   #define MEMCPY memcpy
  #endif /* STM8S208 or STM8S207 or STM8S007 or STM8AF62Ax or STM8AF52Ax */ 
-#elif defined(_SDCC_) /* __SDCC */
+#elif defined (_SDCC_)
  #define NEAR
  #define CONST  const
 #else /*_IAR_*/
@@ -175,6 +175,8 @@
    #define IN_RAM(a) a
  #elif defined (_RAISONANCE_) /* __RCST7__ */
    #define IN_RAM(a) a inram
+ #elif defined (_SDCC_)
+  #define IN_RAM(a) a
  #else /*_IAR_*/
   #define IN_RAM(a) __ramfunc a
  #endif /* _COSMIC_ */
@@ -2760,8 +2762,8 @@ CFG_TypeDef;
 #endif /* _RAISONANCE_ */
 
 #ifdef _SDCC_
-  #define INTERRUPT_HANDLER(a,b) void a(void) __interrupt(b)
-  #define INTERRUPT_HANDLER_TRAP(a) void a(void) __trap
+ #define INTERRUPT_HANDLER(a,b) void a(void) __interrupt(b)
+ #define INTERRUPT_HANDLER_TRAP(a) void a(void) __trap
 #endif /* _SDCC_ */
 
 #ifdef _IAR_
@@ -2778,6 +2780,8 @@ CFG_TypeDef;
 /*============================== Interrupt Handler declaration ========================*/
 #ifdef _COSMIC_
  #define INTERRUPT @interrupt
+#elif defined(_SDCC_)
+ #define INTERRUPT __interrupt
 #elif defined(_IAR_)
  #define INTERRUPT __interrupt
 #endif /* _COSMIC_ */

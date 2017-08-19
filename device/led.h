@@ -1,13 +1,12 @@
 #ifndef __LED_H__
 #define __LED_H__
 
+#include <stm8s.h>
+#include <bitfield.h>
+
 // led: GPIOD.0
 
-#include <stm8s.h>
-
-struct  __LEDs { volatile uint8_t f: 1; uint8_t: 7; };
-
-#define   LED (((struct __LEDs *)&(GPIOD->ODR))->f)
+#define   LED  BIT(GPIOD->ODR, 0)
 
 static inline void led_init( void )
 {

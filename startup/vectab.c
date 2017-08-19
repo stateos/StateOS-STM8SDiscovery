@@ -1,3 +1,10 @@
+/*******************************************************************************
+@file     startup.c
+@author   Rajmund Szymanski
+@date     18.08.2017
+@brief    STM8S vector table.
+*******************************************************************************/
+
 void TRAP_IRQHandler();
 void TLI_IRQHandler();
 void AWU_IRQHandler();
