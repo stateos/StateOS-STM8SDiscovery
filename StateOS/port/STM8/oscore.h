@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.h
     @author  Rajmund Szymanski
-    @date    21.08.2017
+    @date    23.08.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -100,25 +100,30 @@ extern   stk_t               _stack[];
 
 typedef struct __ctx ctx_t;
 
-#if   defined(__CSMC__)
-
 struct __ctx
 {
 	char     dummy; // sp is a pointer to the first free byte on the stack
 	// context saved by the software
-	char     c_lreg[4];
-	char     c_y[3];
-	char     c_x[3];
+#if   defined(__CSMC__)
+	char     r[10]; // c_lreg[4], c_y[3], c_x[3]
+#endif
 	// context saved by the hardware
 	char     cc;
 	char     a;
 	unsigned x, y;
-FAR	fun_t  * pc;
+#if   defined(__SDCC)
+	char     far;   // hardware saves pc as a far pointer (3 bytes)
+#else
+	FAR
+#endif
+	fun_t  * pc;
 };
 
+#if   defined(__SDCC)
+#define _CTX_INIT( pc ) { 0, 0x20, 0, 0, 0, 0, pc }
+#else
+#define _CTX_INIT( pc ) { 0, { 0 }, 0x20, 0, 0, 0, (FAR fun_t *) pc }
 #endif
-
-#define _CTX_INIT( pc ) { 0, { 0 }, { 0 }, { 0 }, 0x20, 0, 0, 0, (FAR fun_t *) pc }
 
 /* -------------------------------------------------------------------------- */
 
@@ -126,7 +131,12 @@ __STATIC_INLINE
 void port_ctx_init( ctx_t *ctx, fun_t *pc )
 {
 	ctx->cc = 0x20;
+#if   defined(__SDCC)
+	ctx->far = 0;
+	ctx->pc = pc;
+#else
 	ctx->pc = (FAR fun_t *) pc;
+#endif
 }
 
 /* -------------------------------------------------------------------------- */
@@ -140,6 +150,9 @@ void port_ctx_init( ctx_t *ctx, fun_t *pc )
 #define _set_CC(cc)  (void)  _asm("push a""\n""pop cc", (lck_t)(cc))
 
 #elif defined(__SDCC)
+
+void  * _get_SP( void );
+void    _set_SP( void *sp );
 
 lck_t   _get_CC( void );
 void    _set_CC( lck_t cc );
