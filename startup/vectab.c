@@ -1,5 +1,5 @@
 /*******************************************************************************
-@file     startup.c
+@file     vectab.c
 @author   Rajmund Szymanski
 @date     18.08.2017
 @brief    STM8S vector table.
