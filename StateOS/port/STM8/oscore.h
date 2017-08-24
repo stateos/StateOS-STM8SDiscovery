@@ -176,6 +176,8 @@ void    _set_CC( lck_t cc );
 #define  port_cnt_lock()      do { lck_t __LOCK = port_get_lock(); port_set_lock()
 #define  port_cnt_unlock()         port_put_lock(__LOCK); } while(0)
 
+#define  port_set_barrier()   nop()
+
 /* -------------------------------------------------------------------------- */
 
 __STATIC_INLINE
@@ -191,6 +193,7 @@ __STATIC_INLINE
 void port_ctx_switchLock( void )
 {
 	port_ctx_switchNow();
+	port_set_barrier();
 	port_set_lock();
 }
 
