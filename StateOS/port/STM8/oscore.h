@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.h
     @author  Rajmund Szymanski
-    @date    23.08.2017
+    @date    24.08.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -44,7 +44,7 @@ extern "C" {
 /* -------------------------------------------------------------------------- */
 
 #ifndef  OS_STACK_SIZE
-#define  OS_STACK_SIZE      256 /* default task stack size in bytes           */
+#define  OS_STACK_SIZE      128 /* default task stack size in bytes           */
 #endif
 
 #ifndef  OS_IDLE_STACK
