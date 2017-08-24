@@ -1,7 +1,7 @@
 #include <os.h>
 #include <led.h>
 
-OS_SEM(sem, 0, semNormal);
+OS_SEM(sem, 0, semBinary);
 
 OS_TSK_DEF(sla, 0)
 {
@@ -15,7 +15,7 @@ OS_TSK_DEF(mas, 0)
 	sem_give(sem);
 }
 
-int main(void)
+void main()
 {
 	led_init();
 	sys_init();
