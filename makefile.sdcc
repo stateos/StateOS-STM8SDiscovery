@@ -1,11 +1,11 @@
 #**********************************************************#
 #file     makefile
 #author   Rajmund Szymanski
-#date     24.08.2017
+#date     17.08.2017
 #brief    STM8 makefile.
 #**********************************************************#
 
-COSMIC     := c:/sys/cosmic/cxstm8/
+SDCC       := c:/sys/sdcc/bin/
 STVP       := c:/sys/tools/stvp/stvp_cmdline -BoardName=ST-LINK -Port=USB -ProgMode=SWIM -Device=STM8S105x6 -verif -no_loop -no_log
 
 #----------------------------------------------------------#
@@ -21,19 +21,19 @@ SCRIPT     ?=
 #----------------------------------------------------------#
 
 DEFS       += STM8S105
-KEYS       += .csmc *
-LIBS       += crtsx0 libisl0 libm0
-MODEL      := modsl0
+KEYS       += .sdcc *
+LIBS       += stm8
 
 #----------------------------------------------------------#
 
-AS         := $(COSMIC)cxstm8
-CC         := $(COSMIC)cxstm8
-LD         := $(COSMIC)clnk
-AR         := $(COSMIC)clib
-DUMP       := $(COSMIC)chex
-COPY       := $(COSMIC)cvdwarf
-LABS       := $(COSMIC)clabs
+AS         := $(SDCC)sdasstm8
+CC         := $(SDCC)sdcc
+LD         := $(SDCC)sdld
+AR         := $(SDCC)sdar
+COPY       := $(SDCC)sdobjcopy
+DBG        := $(SDCC)sdcdb
+SIM        := $(SDCC)sstm8
+
 SIZE       := size
 
 RM         ?= rm -f
@@ -47,93 +47,91 @@ VPATH      := $(sort $(call DTREE,) $(foreach d,$(DIRS),$(call DTREE,$d/)))
 #----------------------------------------------------------#
 
 INC_DIRS   := $(sort $(dir $(foreach d,$(VPATH),$(wildcard $d*.h))))
-LIB_DIRS   := $(sort $(dir $(foreach d,$(VPATH),$(wildcard $d*.sm8))))
+LIB_DIRS   := $(sort $(dir $(foreach d,$(VPATH),$(wildcard $d*.lib))))
 AS_SRCS    :=              $(foreach d,$(VPATH),$(wildcard $d*.s))
 CC_SRCS    :=              $(foreach d,$(VPATH),$(wildcard $d*.c))
-LIB_SRCS   :=     $(notdir $(foreach d,$(VPATH),$(wildcard $d*.sm8)))
-ifeq ($(strip $(SCRIPT)),)
-SCRIPT     :=  $(firstword $(foreach d,$(VPATH),$(wildcard $d*.lkf)))
-else
-SCRIPT     :=  $(firstword $(foreach d,$(VPATH),$(wildcard $d$(SCRIPT))))
-endif
+LIB_SRCS   :=     $(notdir $(foreach d,$(VPATH),$(wildcard $d*.lib)))
+
 ifeq ($(strip $(PROJECT)),)
 PROJECT    :=     $(notdir $(CURDIR))
 endif
 
 #----------------------------------------------------------#
 
-BIN        := $(PROJECT).sm8
 ELF        := $(PROJECT).elf
-HEX        := $(PROJECT).s19
-LIB        := $(PROJECT).sm8
+HEX        := $(PROJECT).hex
+LIB        := $(PROJECT).lib
 MAP        := $(PROJECT).map
+CDB        := $(PROJECT).cdb
+LKF        := $(PROJECT).lk
 
-OBJS       := $(AS_SRCS:%.s=%.o)
-OBJS       += $(CC_SRCS:%.c=%.o)
-LSTS       := $(OBJS:.o=.ls)
-TXTS       := $(OBJS:.o=.la)
-
-#----------------------------------------------------------#
-
-AS_FLAGS   := #-ax
-AS_FLAGS   += -ep -l
-CC_FLAGS   := #+debug
-CC_FLAGS   += #+warn #+strict
-CC_FLAGS   += +$(MODEL) -pc99 -l #+compact
-LD_FLAGS   := -m $(MAP)
+OBJS       := $(AS_SRCS:.s=.rel)
+OBJS       += $(CC_SRCS:.c=.rel)
+ASMS       := $(OBJS:.rel=.asm)
+LSTS       := $(OBJS:.rel=.lst)
+RSTS       := $(OBJS:.rel=.rst)
+SYMS       := $(OBJS:.rel=.sym)
+ADBS       := $(OBJS:.rel=.adb)
 
 #----------------------------------------------------------#
 
-DEFS_F     := $(DEFS:%=-d%)
+CORE_F      = -mstm8
+COMMON_F    = #--debug
+AS_FLAGS    = -l -o -s
+CC_FLAGS    = --std-sdcc11
+LD_FLAGS    =
+
+#----------------------------------------------------------#
+
+DEFS_F     := $(DEFS:%=-D%)
 
 INC_DIRS   += $(INCS:%=%/)
-INC_DIRS_F := $(INC_DIRS:%=-i%)
+INC_DIRS_F := $(INC_DIRS:%/=-I%)
 
-LIB_DIRS_F := $(LIB_DIRS:%=-l%)
-LIBS_F     := $(LIBS:%=%.sm8)
-LIBS_F     += $(LIB_SRCS:$(BIN)=)
+SRC_DIRS   := $(sort $(dir $(AS_SRCS) $(CC_SRCS)))
+SRC_DIRS_F := $(SRC_DIRS:%/=--directory=%)
 
-CC_FLAGS   += $(DEFS_F) $(INC_DIRS_F)
-LD_FLAGS   += $(LIB_DIRS_F)
+LIB_DIRS_F := $(LIB_DIRS:%/=-L%)
+LIBS_F     := $(LIBS:%=-l%)
+LIBS_F     += $(LIB_SRCS:%.lib=-l%)
+
+AS_FLAGS   +=
+CC_FLAGS   += $(CORE_F) $(COMMON_F) $(DEFS_F) $(INC_DIRS_F)
+LD_FLAGS   += $(CORE_F) $(COMMON_F) $(LIBS_F) $(LIB_DIRS_F)
 
 #----------------------------------------------------------#
 
 all : $(ELF) print_elf_size
 
-lib : $(OBJS)
-	$(info Creating library: $(LIB))
-	$(AR) -c -p $(LIB) $?
+lib : $(LIB)
 
-$(BIN) : $(OBJS) $(SCRIPT)
-	$(info Creating BIN image: $(BIN))
-ifeq ($(strip $(SCRIPT)),)
-	$(error No linker file in project)
-endif
-	$(LD) -o $@ $(LD_FLAGS) $(SCRIPT) $(OBJS) $(LIBS_F)
+$(ELF) : $(OBJS)
+	$(info Linking target: $(ELF))
+	$(CC) --out-fmt-elf $(LD_FLAGS) $(OBJS) -o $@
+
+$(LIB) : $(OBJS)
+	$(info Building library: $(LIB))
+	$(AR) -r $@ $?
 
 $(OBJS) : $(MAKEFILE_LIST)
 
-%.o : %.s
-	$(AS) $(AS_FLAGS) $<
+%.rel : %.s
+	$(info Assembling file: $<)
+	$(AS) $(AS_FLAGS) $@ $<
 
-%.o : %.c
-	$(CC) $(CC_FLAGS) $<
+%.rel : %.c
+	$(info Compiling file: $<)
+	$(CC) -c $(CC_FLAGS) $< -o $@
 
-$(HEX) : $(BIN)
+$(HEX) : $(OBJS)
 	$(info Creating HEX image: $(HEX))
-	$(DUMP) -o $@ $<
-
-$(ELF) : $(BIN)
-	$(info Creating ELF image: $(ELF))
-	$(COPY) $<
-#	$(info Creating absolute listings)
-#	$(LABS) $<
+	$(CC) $(LD_FLAGS) $(OBJS) -o $@
 
 print_elf_size : $(ELF)
 	$(info Size of target file:)
 	$(SIZE) -B $(ELF)
 
-GENERATED = $(BIN) $(ELF) $(HEX) $(LIB) $(MAP) $(LSTS) $(OBJS) $(TXTS)
+GENERATED = $(BIN) $(ELF) $(HEX) $(LIB) $(LSS) $(MAP) $(CDB) $(LKF) $(LSTS) $(OBJS) $(ASMS) $(LSTS) $(RSTS) $(SYMS) $(ADBS)
 
 clean :
 	$(info Removing all generated output files)
@@ -143,4 +141,9 @@ flash : all $(HEX)
 	$(info Programing device...)
 	$(STVP) -FileProg=$(HEX)
 
-.PHONY : all lib clean flash
+debug : all $(HEX)
+	$(info Debugging device...)
+	$(DBG) $(PROJECT) $(SRC_DIRS_F)
+#	$(SIM) $(HEX)
+
+.PHONY : all lib clean flash debug
