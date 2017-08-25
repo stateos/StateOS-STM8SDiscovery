@@ -1,7 +1,7 @@
 #**********************************************************#
 #file     makefile
 #author   Rajmund Szymanski
-#date     17.08.2017
+#date     25.08.2017
 #brief    STM8 makefile.
 #**********************************************************#
 
@@ -75,7 +75,7 @@ ADBS       := $(OBJS:.rel=.adb)
 
 #----------------------------------------------------------#
 
-CORE_F      = -mstm8
+CORE_F      = -mstm8 --less-pedantic
 COMMON_F    = #--debug
 AS_FLAGS    = -l -o -s
 CC_FLAGS    = --std-sdcc11
