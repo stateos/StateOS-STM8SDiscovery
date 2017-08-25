@@ -1,55 +1,62 @@
 /*******************************************************************************
 @file     vectab.c
 @author   Rajmund Szymanski
-@date     18.08.2017
+@date     24.08.2017
 @brief    STM8S vector table.
 *******************************************************************************/
 
-void TRAP_IRQHandler();
-void TLI_IRQHandler();
-void AWU_IRQHandler();
-void CLK_IRQHandler();
-void EXTI_PORTA_IRQHandler();
-void EXTI_PORTB_IRQHandler();
-void EXTI_PORTC_IRQHandler();
-void EXTI_PORTD_IRQHandler();
-void EXTI_PORTE_IRQHandler();
-void EXTI_PORTF_IRQHandler();
-void CAN_RX_IRQHandler();
-void CAN_TX_IRQHandler();
-void SPI_IRQHandler();
-void TIM1_UPD_OVF_TRG_BRK_IRQHandler();
-void TIM1_CAP_COM_IRQHandler();
-void TIM5_UPD_OVF_BRK_TRG_IRQHandler();
-void TIM5_CAP_COM_IRQHandler();
-void TIM2_UPD_OVF_BRK_IRQHandler();
-void TIM2_CAP_COM_IRQHandler();
-void TIM3_UPD_OVF_BRK_IRQHandler();
-void TIM3_CAP_COM_IRQHandler();
-void UART1_RX_IRQHandler();
-void UART1_TX_IRQHandler();
-void UART4_RX_IRQHandler();
-void UART4_TX_IRQHandler();
-void I2C_IRQHandler();
-void UART2_RX_IRQHandler();
-void UART2_TX_IRQHandler();
-void UART3_RX_IRQHandler();
-void UART3_TX_IRQHandler();
-void ADC1_IRQHandler();
-void ADC2_IRQHandler();
-void TIM4_UPD_OVF_IRQHandler();
-void TIM6_UPD_OVF_TRG_IRQHandler();
-void EEPROM_EEC_IRQHandler();
+#ifdef  __CSMC__
+#define Reset_IRQHandler _stext
+#endif
+
+/* -------------------------------------------------------------------------- */
+
+void Reset_IRQHandler(void);
+void TRAP_IRQHandler(void);
+void TLI_IRQHandler(void);
+void AWU_IRQHandler(void);
+void CLK_IRQHandler(void);
+void EXTI_PORTA_IRQHandler(void);
+void EXTI_PORTB_IRQHandler(void);
+void EXTI_PORTC_IRQHandler(void);
+void EXTI_PORTD_IRQHandler(void);
+void EXTI_PORTE_IRQHandler(void);
+void EXTI_PORTF_IRQHandler(void);
+void CAN_RX_IRQHandler(void);
+void CAN_TX_IRQHandler(void);
+void SPI_IRQHandler(void);
+void TIM1_UPD_OVF_TRG_BRK_IRQHandler(void);
+void TIM1_CAP_COM_IRQHandler(void);
+void TIM5_UPD_OVF_BRK_TRG_IRQHandler(void);
+void TIM5_CAP_COM_IRQHandler(void);
+void TIM2_UPD_OVF_BRK_IRQHandler(void);
+void TIM2_CAP_COM_IRQHandler(void);
+void TIM3_UPD_OVF_BRK_IRQHandler(void);
+void TIM3_CAP_COM_IRQHandler(void);
+void UART1_RX_IRQHandler(void);
+void UART1_TX_IRQHandler(void);
+void UART4_RX_IRQHandler(void);
+void UART4_TX_IRQHandler(void);
+void I2C_IRQHandler(void);
+void UART2_RX_IRQHandler(void);
+void UART2_TX_IRQHandler(void);
+void UART3_RX_IRQHandler(void);
+void UART3_TX_IRQHandler(void);
+void ADC1_IRQHandler(void);
+void ADC2_IRQHandler(void);
+void TIM4_UPD_OVF_IRQHandler(void);
+void TIM6_UPD_OVF_TRG_IRQHandler(void);
+void EEPROM_EEC_IRQHandler(void);
+
+/* -------------------------------------------------------------------------- */
 
 #ifdef  __CSMC__
-
-void _stext(); // startup routine
 
 #pragma section const { vector }
 
 void (* const @vector _vectab[32])() =
 {
-/* -2 */  _stext,
+/* -2 */  Reset_IRQHandler, // startup routine
 /* -1 */  TRAP_IRQHandler,
 /*  0 */  TLI_IRQHandler,
 /*  1 */  AWU_IRQHandler,
@@ -125,4 +132,6 @@ void (* const @vector _vectab[32])() =
 /* 29 */  0,
 };
 
-#endif//__CSMC__
+#endif
+
+/* -------------------------------------------------------------------------- */
