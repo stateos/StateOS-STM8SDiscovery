@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.h
     @author  Rajmund Szymanski
-    @date    26.08.2017
+    @date    24.08.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -49,10 +49,6 @@ extern "C" {
 
 #ifndef  OS_IDLE_STACK
 #define  OS_IDLE_STACK      128 /* idle task stack size in bytes              */
-#endif
-
-#ifndef  OS_CHECK_SIZE
-#define  OS_CHECK_SIZE       16 /* minimum assertion stack size in bytes      */
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -145,15 +141,6 @@ void port_ctx_init( ctx_t *ctx, fun_t *pc )
 
 /* -------------------------------------------------------------------------- */
 
-// is procedure inside ISR?
-__STATIC_INLINE
-bool port_isr_inside( void )
-{
-	return false;
-}
-
-/* -------------------------------------------------------------------------- */
-
 #if   defined(__CSMC__)
 
 #define _get_SP()    (void *)_asm("ldw x, sp")
@@ -171,15 +158,6 @@ lck_t   _get_CC( void );
 void    _set_CC( lck_t cc );
 
 #endif
-
-/* -------------------------------------------------------------------------- */
-
-// get current stack pointer
-__STATIC_INLINE
-void * port_get_sp( void )
-{
-	return _get_SP();
-}
 
 /* -------------------------------------------------------------------------- */
 
