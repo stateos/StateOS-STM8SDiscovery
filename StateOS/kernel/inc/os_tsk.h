@@ -129,7 +129,7 @@ struct __tsk
 
 #ifndef __cplusplus
 #define               _TSK_CREATE( _prio, _state, _stack, _size ) \
-            & (tsk_t) _TSK_INIT( _prio, _state, _stack, _size )
+            & (tsk_t) _TSK_INIT  ( _prio, _state, _stack, _size )
 #endif
 
 /**********************************************************************************************************************
@@ -340,7 +340,7 @@ struct __tsk
 
 #ifndef __cplusplus
 #define                WRK_CREATE( prio, state, size ) \
-             & (tsk_t) WRK_INIT( prio, state, size )
+             & (tsk_t) WRK_INIT  ( prio, state, size )
 #define                WRK_NEW \
                        WRK_CREATE
 #endif
