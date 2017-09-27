@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.c
     @author  Rajmund Szymanski
-    @date    18.08.2017
+    @date    26.09.2017
     @brief   StateOS port file for STM8S uC.
 
  ******************************************************************************
@@ -26,7 +26,7 @@
 
  ******************************************************************************/
 
-#include <oskernel.h>
+#include <os.h>
 
 /* -------------------------------------------------------------------------- */
 
@@ -81,9 +81,8 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
 	System.cnt++;
 	#if OS_ROBIN
 	core_tmr_handler();
-	System.dly++;
-	if (System.dly >= OS_FREQUENCY/OS_ROBIN)
-	core_ctx_switch();
+	if (++System.cur->slice >= OS_FREQUENCY/OS_ROBIN)
+		core_ctx_switch();
 	#endif
 }
 
