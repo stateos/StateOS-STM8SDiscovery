@@ -72,7 +72,7 @@ struct __tsk
 	unsigned mode;  // used by flag object
 	void   * data;  // used by queue objects
 	unsigned msg;   // used by message queue object
-
+	fun_t  * fun;   // used by job queue object
 
 	unsigned flags; // used by flag object: all flags to wait
 	unsigned event; // wakeup event
@@ -107,10 +107,10 @@ struct __tsk
 
 #if defined(__ARMCC_VERSION) && !defined(__MICROLIB)
 #define               _TSK_INIT( _prio, _state, _stack, _size ) \
-                       { { 0, 0, 0, 0 }, _state, 0, 0, 0, 0, _stack+ASIZE(_size), _stack, _prio, _prio, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0 } }
+                       { { 0, 0, 0, 0 }, _state, 0, 0, 0, 0, _stack+ASIZE(_size), _stack, _prio, _prio, 0, 0, 0, 0, 0, { 0 }, { 0 }, { 0 } }
 #else
 #define               _TSK_INIT( _prio, _state, _stack, _size ) \
-                       { { 0, 0, 0, 0 }, _state, 0, 0, 0, 0, _stack+ASIZE(_size), _stack, _prio, _prio, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }
+                       { { 0, 0, 0, 0 }, _state, 0, 0, 0, 0, _stack+ASIZE(_size), _stack, _prio, _prio, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 #endif
 
 /**********************************************************************************************************************
