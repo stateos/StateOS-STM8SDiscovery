@@ -13,9 +13,10 @@ before_install:
   - sudo apt-get install sdcc
 
 install:
-  - wget https://github.com/stateos/StateOS/archive/master.zip -O StateOS-master.zip
-# - unzip -q -d . StateOS-master.zip StateOS-master/StateOS/kernel/*
+  - wget https://github.com/stateos/StateOS/archive/master.zip
+  - unzip -q master.zip
 # - mv -T StateOS-master/StateOS/kernel/ StateOS/kernel/
+  - rm -r StateOS-master
 
 before_script: sdcc --version
 
