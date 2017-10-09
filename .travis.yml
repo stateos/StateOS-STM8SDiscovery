@@ -1,14 +1,8 @@
-sudo: required
-
-language: c
-
 os: linux
+sudo: required
+language: generic
 
-dist: trusty
-
-# compiler: sdcc
-
-before_install:
+install:
   - sudo apt-get update -qq
 # - sudo apt-get install sdcc
   - sudo apt-get install -y curl subversion build-essential flex bison libboost-dev texinfo stx-btree-dev zip netcat gawk python2.7
@@ -36,15 +30,12 @@ before_install:
   - cd ..
   - cd ..
   - rm -Rf sdcc-code
+  - sdcc --version
 
-install:
+before_script:
   - wget https://github.com/stateos/StateOS/archive/master.zip
   - unzip -q master.zip
   - mv -T StateOS-master/StateOS/kernel/ StateOS/kernel/
   - rm -r StateOS-master
 
-before_script: sdcc --version
-
 script: make all SDCC= -f makefile.sdcc
-
-group: stable
