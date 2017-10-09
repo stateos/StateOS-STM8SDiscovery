@@ -1,7 +1,7 @@
 #**********************************************************#
 #file     makefile
 #author   Rajmund Szymanski
-#date     25.08.2017
+#date     09.10.2017
 #brief    STM8 makefile.
 #**********************************************************#
 
@@ -72,13 +72,14 @@ LSTS       := $(OBJS:.rel=.lst)
 RSTS       := $(OBJS:.rel=.rst)
 SYMS       := $(OBJS:.rel=.sym)
 ADBS       := $(OBJS:.rel=.adb)
+DEPS       := $(OBJS:.rel=.d)
 
 #----------------------------------------------------------#
 
-CORE_F      = -mstm8 --less-pedantic
+CORE_F      = -mstm8 #--less-pedantic
 COMMON_F    = #--debug
 AS_FLAGS    = -l -o -s
-CC_FLAGS    = --std-sdcc11
+CC_FLAGS    = --std-sdcc11 -MD
 LD_FLAGS    =
 
 #----------------------------------------------------------#
@@ -131,7 +132,7 @@ print_elf_size : $(ELF)
 	$(info Size of target file:)
 	$(SIZE) -B $(ELF)
 
-GENERATED = $(BIN) $(ELF) $(HEX) $(LIB) $(LSS) $(MAP) $(CDB) $(LKF) $(LSTS) $(OBJS) $(ASMS) $(LSTS) $(RSTS) $(SYMS) $(ADBS)
+GENERATED = $(BIN) $(ELF) $(HEX) $(LIB) $(LSS) $(MAP) $(CDB) $(LKF) $(LSTS) $(OBJS) $(ASMS) $(DEPS) $(LSTS) $(RSTS) $(SYMS) $(ADBS)
 
 clean :
 	$(info Removing all generated output files)
@@ -147,3 +148,5 @@ debug : all $(HEX)
 #	$(SIM) $(HEX)
 
 .PHONY : all lib clean flash debug
+
+-include $(DEPS)
