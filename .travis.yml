@@ -7,9 +7,8 @@ install:
 # - sudo apt-get install sdcc
   - sudo apt-get install -y curl subversion build-essential flex bison libboost-dev texinfo stx-btree-dev zip netcat gawk python2.7
   - mkdir sdcc-code -p
-  - cd sdcc-code
-  - svn checkout svn://svn.code.sf.net/p/sdcc/code/trunk/sdcc@10040
-  - cd sdcc
+  - svn checkout svn://svn.code.sf.net/p/sdcc/code/trunk
+  - cd trunk/sdcc
   - ./configure --disable-mcs51-port
                 --disable-z80-port
                 --disable-z180-port
@@ -27,9 +26,8 @@ install:
                 --disable-non-free
   - make -s
   - sudo make install -s
-  - cd ..
-  - cd ..
-  - rm -Rf sdcc-code
+  - cd ../..
+  - rm -Rf trunk
   - sdcc --version
 
 before_script:
