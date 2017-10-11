@@ -6,7 +6,6 @@ install:
   - sudo apt-get update -qq
 # - sudo apt-get install sdcc
   - sudo apt-get install -y curl subversion build-essential flex bison libboost-dev texinfo stx-btree-dev zip netcat gawk python2.7
-  - mkdir sdcc-code -p
   - svn checkout svn://svn.code.sf.net/p/sdcc/code/trunk
   - cd trunk/sdcc
   - ./configure --disable-mcs51-port
