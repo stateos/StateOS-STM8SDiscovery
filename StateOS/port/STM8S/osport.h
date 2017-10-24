@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    08.08.2017
+    @date    24.10.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -42,38 +42,38 @@ INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler,     16);
 
 /* -------------------------------------------------------------------------- */
 
-#ifndef  OS_TICKLESS
-#define  OS_TICKLESS          0 /* os does not work in tick-less mode         */
+#ifndef OS_TICKLESS
+#define OS_TICKLESS           0 /* os does not work in tick-less mode         */
 #endif
 
-#if      OS_TICKLESS
-#error   osconfig.h: Incorrect OS_TICKLESS value! This port does not support tick-less mode.
+#if     OS_TICKLESS
+#error  osconfig.h: Incorrect OS_TICKLESS value! This port does not support tick-less mode.
 #endif
 
 /* -------------------------------------------------------------------------- */
 
 #ifndef CPU_FREQUENCY
-#error   osconfig.h: Undefined CPU_FREQUENCY value!
+#error  osconfig.h: Undefined CPU_FREQUENCY value!
 #endif
 
 /* -------------------------------------------------------------------------- */
 
-#ifndef  OS_FREQUENCY
-#define  OS_FREQUENCY      1000 /* Hz */
+#ifndef OS_FREQUENCY
+#define OS_FREQUENCY       1000 /* Hz */
 #endif
 
-#if     (OS_FREQUENCY > 1000)
-#error   osconfig.h: Incorrect OS_FREQUENCY value!
+#if     OS_FREQUENCY > 1000
+#error  osconfig.h: Incorrect OS_FREQUENCY value!
 #endif
 
 /* -------------------------------------------------------------------------- */
 
-#ifndef  OS_ROBIN
-#define  OS_ROBIN             0 /* system works in cooperative mode           */
+#ifndef OS_ROBIN
+#define OS_ROBIN              0 /* system works in cooperative mode           */
 #endif
 
-#if     (OS_ROBIN > OS_FREQUENCY)
-#error   osconfig.h: Incorrect OS_ROBIN value!
+#if     OS_ROBIN > OS_FREQUENCY
+#error  osconfig.h: Incorrect OS_ROBIN value!
 #endif
 
 /* -------------------------------------------------------------------------- */

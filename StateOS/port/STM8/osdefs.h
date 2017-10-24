@@ -2,7 +2,7 @@
 
     @file    StateOS: osdefs.h
     @author  Rajmund Szymanski
-    @date    24.07.2017
+    @date    24.10.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -31,25 +31,25 @@
 
 /* -------------------------------------------------------------------------- */
 
-#if      defined(__SDCC)
+#if   defined(__SDCC)
 
-#ifndef  __NO_RETURN
-#define  __NO_RETURN         _Noreturn
-#endif
-
+#ifndef __NO_RETURN
+#define __NO_RETURN          _Noreturn
 #endif
 
-#ifndef  __CONSTRUCTOR
-#define  __CONSTRUCTOR
 #endif
-#ifndef  __NO_RETURN
-#define  __NO_RETURN
+
+#ifndef __CONSTRUCTOR
+#define __CONSTRUCTOR
 #endif
-#ifndef  __STATIC_INLINE
-#define  __STATIC_INLINE      static inline
+#ifndef __NO_RETURN
+#define __NO_RETURN
 #endif
-#ifndef  __WFI
-#define  __WFI                wfi
+#ifndef __STATIC_INLINE
+#define __STATIC_INLINE       static inline
+#endif
+#ifndef __WFI
+#define __WFI                 wfi
 #endif
 
 /* -------------------------------------------------------------------------- */
