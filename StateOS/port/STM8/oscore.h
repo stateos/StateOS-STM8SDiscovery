@@ -96,7 +96,6 @@ extern  stk_t                _stack[];
 #endif
 
 /* -------------------------------------------------------------------------- */
-
 // task context
 
 typedef struct __ctx ctx_t;
@@ -128,6 +127,7 @@ struct __ctx
 #endif
 
 /* -------------------------------------------------------------------------- */
+// init task context
 
 __STATIC_INLINE
 void port_ctx_init( ctx_t *ctx, fun_t *pc )
@@ -142,8 +142,8 @@ void port_ctx_init( ctx_t *ctx, fun_t *pc )
 }
 
 /* -------------------------------------------------------------------------- */
-
 // is procedure inside ISR?
+
 __STATIC_INLINE
 bool port_isr_inside( void )
 {
@@ -171,8 +171,8 @@ void    _set_CC( lck_t cc );
 #endif
 
 /* -------------------------------------------------------------------------- */
-
 // get current stack pointer
+
 __STATIC_INLINE
 void * port_get_sp( void )
 {
