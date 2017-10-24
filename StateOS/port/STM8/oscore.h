@@ -54,7 +54,7 @@ extern "C" {
 /* -------------------------------------------------------------------------- */
 
 #ifndef OS_LOCK_LEVEL
-#define OS_LOCK_LEVEL         0 /* critical section blocks all interrupts */
+#define OS_LOCK_LEVEL         0 /* critical section blocks all interrupts     */
 #endif
 
 #if     OS_LOCK_LEVEL > 0
