@@ -77,8 +77,8 @@ INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler,     16);
 #endif
 
 /* -------------------------------------------------------------------------- */
-
 // force yield system control to the next process
+
 __STATIC_INLINE
 void port_ctx_switch( void )
 {
@@ -86,24 +86,24 @@ void port_ctx_switch( void )
 }
 
 /* -------------------------------------------------------------------------- */
-
 // reset context switch indicator
+
 __STATIC_INLINE
 void port_ctx_reset( void )
 {
 }
 
 /* -------------------------------------------------------------------------- */
-
 // clear time breakpoint
+
 __STATIC_INLINE
 void port_tmr_stop( void )
 {
 }
 	
 /* -------------------------------------------------------------------------- */
-
 // set time breakpoint
+
 __STATIC_INLINE
 void port_tmr_start( uint32_t timeout )
 {
@@ -111,8 +111,8 @@ void port_tmr_start( uint32_t timeout )
 }
 
 /* -------------------------------------------------------------------------- */
-
 // force timer interrupt
+
 __STATIC_INLINE
 void port_tmr_force( void )
 {
