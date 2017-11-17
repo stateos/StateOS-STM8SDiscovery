@@ -1,7 +1,7 @@
 #**********************************************************#
 #file     makefile
 #author   Rajmund Szymanski
-#date     24.08.2017
+#date     15.11.2017
 #brief    STM8 makefile.
 #**********************************************************#
 
@@ -10,7 +10,7 @@ STVP       := c:/sys/tools/stvp/stvp_cmdline -BoardName=ST-LINK -Port=USB -ProgM
 
 #----------------------------------------------------------#
 
-PROJECT    ?=
+PROJECT    ?= $(notdir $(CURDIR))
 DEFS       ?=
 LIBS       ?=
 DIRS       ?=
@@ -22,7 +22,7 @@ SCRIPT     ?=
 
 DEFS       += STM8S105
 KEYS       += .csmc *
-LIBS       += crtsx0 libisl0 libm0
+LIBS       += crtsx0 libfsl0 libisl0 libm0
 MODEL      := modsl0
 
 #----------------------------------------------------------#
@@ -49,7 +49,7 @@ VPATH      := $(sort $(call DTREE,) $(foreach d,$(DIRS),$(call DTREE,$d/)))
 INC_DIRS   := $(sort $(dir $(foreach d,$(VPATH),$(wildcard $d*.h))))
 LIB_DIRS   := $(sort $(dir $(foreach d,$(VPATH),$(wildcard $d*.sm8))))
 AS_SRCS    :=              $(foreach d,$(VPATH),$(wildcard $d*.s))
-CC_SRCS    :=              $(foreach d,$(VPATH),$(wildcard $d*.c))
+C_SRCS     :=              $(foreach d,$(VPATH),$(wildcard $d*.c))
 LIB_SRCS   :=     $(notdir $(foreach d,$(VPATH),$(wildcard $d*.sm8)))
 ifeq ($(strip $(SCRIPT)),)
 SCRIPT     :=  $(firstword $(foreach d,$(VPATH),$(wildcard $d*.lkf)))
@@ -62,25 +62,25 @@ endif
 
 #----------------------------------------------------------#
 
-BIN        := $(PROJECT).sm8
 ELF        := $(PROJECT).elf
 HEX        := $(PROJECT).s19
 LIB        := $(PROJECT).sm8
 MAP        := $(PROJECT).map
+SM8        := $(PROJECT).sm8
 
 OBJS       := $(AS_SRCS:%.s=%.o)
-OBJS       += $(CC_SRCS:%.c=%.o)
+OBJS       += $(C_SRCS:%.c=%.o)
 LSTS       := $(OBJS:.o=.ls)
 TXTS       := $(OBJS:.o=.la)
 
 #----------------------------------------------------------#
 
 AS_FLAGS   := #-ax
-AS_FLAGS   += -ep -l
-CC_FLAGS   := #+debug
-CC_FLAGS   += #+warn #+strict
-CC_FLAGS   += +$(MODEL) -pc99 -l #+compact
-LD_FLAGS   := -m $(MAP)
+AS_FLAGS   += -l -ep
+C_FLAGS    := #+debug
+C_FLAGS    += #+strict +warn
+C_FLAGS    += +$(MODEL) -pc99 -l -pad
+LD_FLAGS   := -m $(MAP) -p
 
 #----------------------------------------------------------#
 
@@ -91,9 +91,9 @@ INC_DIRS_F := $(INC_DIRS:%=-i%)
 
 LIB_DIRS_F := $(LIB_DIRS:%=-l%)
 LIBS_F     := $(LIBS:%=%.sm8)
-LIBS_F     += $(LIB_SRCS:$(BIN)=)
+LIBS_F     += $(LIB_SRCS:$(SM8)=)
 
-CC_FLAGS   += $(DEFS_F) $(INC_DIRS_F)
+C_FLAGS    += $(DEFS_F) $(INC_DIRS_F)
 LD_FLAGS   += $(LIB_DIRS_F)
 
 #----------------------------------------------------------#
@@ -104,8 +104,8 @@ lib : $(OBJS)
 	$(info Creating library: $(LIB))
 	$(AR) -c -p $(LIB) $?
 
-$(BIN) : $(OBJS) $(SCRIPT)
-	$(info Creating BIN image: $(BIN))
+$(SM8) : $(OBJS) $(SCRIPT)
+	$(info Creating SM8 image: $(SM8))
 ifeq ($(strip $(SCRIPT)),)
 	$(error No linker file in project)
 endif
@@ -117,13 +117,13 @@ $(OBJS) : $(MAKEFILE_LIST)
 	$(AS) $(AS_FLAGS) $<
 
 %.o : %.c
-	$(CC) $(CC_FLAGS) $<
+	$(CC) $(C_FLAGS) $<
 
-$(HEX) : $(BIN)
+$(HEX) : $(SM8)
 	$(info Creating HEX image: $(HEX))
 	$(DUMP) -o $@ $<
 
-$(ELF) : $(BIN)
+$(ELF) : $(SM8)
 	$(info Creating ELF image: $(ELF))
 	$(COPY) $<
 #	$(info Creating absolute listings)
@@ -133,7 +133,7 @@ print_elf_size : $(ELF)
 	$(info Size of target file:)
 	$(SIZE) -B $(ELF)
 
-GENERATED = $(BIN) $(ELF) $(HEX) $(LIB) $(MAP) $(LSTS) $(OBJS) $(TXTS)
+GENERATED = $(ELF) $(HEX) $(LIB) $(MAP) $(SM8) $(LSTS) $(OBJS) $(TXTS)
 
 clean :
 	$(info Removing all generated output files)
