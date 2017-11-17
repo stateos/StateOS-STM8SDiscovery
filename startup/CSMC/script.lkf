@@ -1,25 +1,36 @@
 # LINK COMMAND FILE FOR STM8S105
 
++def __RAM_start=0x0000
++def __RAM_size=0x0800
+
++def __EEP_start=0x4000
++def __EEP_size=0x0400
+
++def __ROM_start=0x8000
++def __ROM_size=0x8000
+
 # segment vector:
-+seg .vector -b 0x8000 -m 0x0080 -k # (keep)
++seg .vector  -b __ROM_start -m __ROM_size -n .vector -k
 # segment code, constants:
-+seg .text   -b 0x8080 -m 0x7F80 -n .text
-+seg .const  -a .text            -n .const -it
++seg .text    -a .vector                   -n .text
++seg .const   -a .text                     -n .const -it
 # segment eeprom:
-+seg .eeprom -b 0x4000 -m 0x0400 -n .eeprom
++seg .eeprom  -b __EEP_start -m __EEP_size -n .eeprom
 # segment zero page:
-+seg .bsct   -b 0x0000 -m 0x0100 -n .bsct
-+seg .ubsct  -a .bsct            -n .ubsct
-+seg .bit    -a .ubsct           -n .bit   -id
-+seg .share  -a .bit             -n .share -is
++seg .bsct    -b 0 -m 256                  -n .bsct
++seg .ubsct   -a .bsct                     -n .ubsct
++seg .bit     -a .ubsct                    -n .bit   -id
++seg .share   -a .bit                      -n .share -is
 # segment ram:
-+seg .data   -b 0x0100 -m 0x0700 -n .data
-+seg .bss    -a .data            -n .bss
++seg .data    -b 256 -m __RAM_size-0x0100  -n .data
++seg .bss     -a .data                     -n .bss
+# segment stack:
++seg .stack   -e __RAM_size-1              -n .stack
 
 @*
 
-+def __endzp=@.ubsct                # end of uninitialized zpage
-+def __memory=@.bss                 # end of bss segment
-+def __stack=0x07FF
++def __endzp=@.ubsct      # end of uninitialized zpage
++def __memory=@.bss       # end of bss segment
++def __stack=end(.stack)
 +def __startmem=__memory
 +def __endmem=__stack
