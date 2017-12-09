@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.h
     @author  Rajmund Szymanski
-    @date    24.10.2017
+    @date    08.12.2017
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -192,9 +192,6 @@ void * port_get_sp( void )
 
 #define port_isr_lock()  do { port_set_lock()
 #define port_isr_unlock()     port_clr_lock(); } while(0)
-
-#define port_cnt_lock()  do { lck_t __LOCK = port_get_lock(); port_set_lock()
-#define port_cnt_unlock()     port_put_lock(__LOCK); } while(0)
 
 #define port_set_barrier()    nop()
 
