@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    24.10.2017
+    @date    28.12.2017
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -30,7 +30,9 @@
 #define __STATEOSPORT_H
 
 #include <stm8s.h>
+#ifndef   NOCONFIG
 #include <osconfig.h>
+#endif
 #include <osdefs.h>
 
 #ifdef __cplusplus
@@ -42,18 +44,8 @@ INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler,     16);
 
 /* -------------------------------------------------------------------------- */
 
-#ifndef OS_TICKLESS
-#define OS_TICKLESS           0 /* os does not work in tick-less mode         */
-#endif
-
-#if     OS_TICKLESS
-#error  osconfig.h: Incorrect OS_TICKLESS value! This port does not support tick-less mode.
-#endif
-
-/* -------------------------------------------------------------------------- */
-
 #ifndef CPU_FREQUENCY
-#error  osconfig.h: Undefined CPU_FREQUENCY value!
+#define CPU_FREQUENCY  16000000 /* Hz */
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -62,8 +54,14 @@ INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler,     16);
 #define OS_FREQUENCY       1000 /* Hz */
 #endif
 
-#if     OS_FREQUENCY > 1000
-#error  osconfig.h: Incorrect OS_FREQUENCY value!
+/* -------------------------------------------------------------------------- */
+
+#ifdef  HW_TIMER_SIZE
+#error  HW_TIMER_SIZE is an internal definition!
+#elif   OS_FREQUENCY > 1000 
+#define HW_TIMER_SIZE        16
+#else
+#define HW_TIMER_SIZE         0
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -91,6 +89,13 @@ void port_ctx_switch( void )
 __STATIC_INLINE
 void port_ctx_reset( void )
 {
+#if HW_TIMER_SIZE
+	#if OS_ROBIN
+	uint16_t timeout = ((uint16_t)TIM3->CNTRH << 8) + TIM3->CNTRL + (uint16_t)((CPU_FREQUENCY)/(OS_FREQUENCY));
+	TIM3->CCR1H = (uint8_t)(timeout >> 8);
+	TIM3->CCR1L = (uint8_t)(timeout);
+	#endif
+#endif
 }
 
 /* -------------------------------------------------------------------------- */
@@ -99,6 +104,9 @@ void port_ctx_reset( void )
 __STATIC_INLINE
 void port_tmr_stop( void )
 {
+#if HW_TIMER_SIZE
+	TIM3->IER = TIM3_IER_UIE | TIM3_IER_CC1IE;
+#endif
 }
 	
 /* -------------------------------------------------------------------------- */
@@ -107,7 +115,13 @@ void port_tmr_stop( void )
 __STATIC_INLINE
 void port_tmr_start( uint32_t timeout )
 {
+#if HW_TIMER_SIZE
+	TIM3->CCR2H = (uint8_t)(timeout >> 8);
+	TIM3->CCR2L = (uint8_t)(timeout);
+	TIM3->IER = TIM3_IER_UIE | TIM3_IER_CC1IE | TIM3_IER_CC2IE;
+#else
 	(void) timeout;
+#endif
 }
 
 /* -------------------------------------------------------------------------- */
@@ -116,6 +130,10 @@ void port_tmr_start( uint32_t timeout )
 __STATIC_INLINE
 void port_tmr_force( void )
 {
+#if HW_TIMER_SIZE
+	TIM3->IER = TIM3_IER_UIE | TIM3_IER_CC1IE | TIM3_IER_CC2IE;
+	TIM3->EGR = TIM3_EGR_CC2G;
+#endif
 }
 
 /* -------------------------------------------------------------------------- */

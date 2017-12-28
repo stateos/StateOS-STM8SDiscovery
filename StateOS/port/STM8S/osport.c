@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.c
     @author  Rajmund Szymanski
-    @date    24.10.2017
+    @date    28.12.2017
     @brief   StateOS port file for STM8S uC.
 
  ******************************************************************************
@@ -37,36 +37,56 @@ void port_sys_init( void )
 	CLK->SWCR  |= CLK_SWCR_SWEN;
 	CLK->SWR    = 0xB4; /* HSE */ while ((CLK->SWCR & CLK_SWCR_SWBSY)  == 1);
 
-#if OS_TICKLESS == 0
+#if HW_TIMER_SIZE == 0
+
+	#define  CNT_(X)   ((X)>>0?(X)>>1?(X)>>2?(X)>>3?(X)>>4?(X)>>5?(X)>>6?(X)>>7?(X)>>8?(X)>>9?1/0:9:8:7:6:5:4:3:2:1:0)
+	#define  PSC_ CNT_ (((CPU_FREQUENCY)/(OS_FREQUENCY)-1)>>16)
+	#define  ARR_     ((((CPU_FREQUENCY)/(OS_FREQUENCY))>>PSC_)-1)
 
 /******************************************************************************
  Non-tick-less mode: configuration of system timer
  It must generate interrupts with frequency OS_FREQUENCY
 *******************************************************************************/
 
-	#define  CNT_(X)   ((X)>>0?(X)>>1?(X)>>2?(X)>>3?(X)>>4?(X)>>5?(X)>>6?(X)>>7?(X)>>8?(X)>>9?1/0:9:8:7:6:5:4:3:2:1:0)
-	#define  PSC_ CNT_ (((CPU_FREQUENCY)/(OS_FREQUENCY)-1)>>16)
-	#define  ARR_     ((((CPU_FREQUENCY)/(OS_FREQUENCY))>>PSC_)-1)
-
-	TIM3->PSCR  = PSC_;
-	TIM3->ARRH  = ARR_ >> 8;
-	TIM3->ARRL  = (uint8_t) ARR_;
-	TIM3->IER  |= TIM3_IER_UIE;
-	TIM3->IER  |= TIM3_IER_CC1IE;
-	TIM3->CR1  |= TIM3_CR1_CEN;
+	TIM3->PSCR = PSC_;
+	TIM3->ARRH = (uint8_t)(ARR_ >> 8);
+	TIM3->ARRL = (uint8_t)(ARR_);
+	TIM3->IER  = TIM3_IER_UIE | TIM3_IER_CC1IE;
+	TIM3->CR1  = TIM3_CR1_CEN;
 
 /******************************************************************************
  End of configuration
 *******************************************************************************/
 
-#endif//OS_TICKLESS
+#else //HW_TIMER_SIZE
+
+	#define  CNT_(X)   ((X)>>0?(X)>>1?(X)>>2?(X)>>3?(X)>>4?(X)>>5?(X)>>6?(X)>>7?(X)>>8?(X)>>9?1/0:9:8:7:6:5:4:3:2:1:0)
+	#define  PSC_ CNT_  ((CPU_FREQUENCY)/(OS_FREQUENCY)-1)
+	#define  CCR_       ((CPU_FREQUENCY)/(OS_FREQUENCY))
+
+/******************************************************************************
+ Tick-less mode: configuration of system timer
+ It must be rescaled to frequency OS_FREQUENCY
+*******************************************************************************/
+
+	TIM3->PSCR = PSC_;
+	TIM3->CCR1H= (uint8_t)(CCR_ >> 8);
+	TIM3->CCR1L= (uint8_t)(CCR_);
+	TIM3->IER  = TIM3_IER_UIE | TIM3_IER_CC1IE;
+	TIM3->CR1  = TIM3_CR1_CEN;
+
+/******************************************************************************
+ End of configuration
+*******************************************************************************/
+
+#endif//HW_TIMER_SIZE
 
 	port_clr_lock();
 }
 
 /* -------------------------------------------------------------------------- */
 
-#if OS_TICKLESS == 0
+#if HW_TIMER_SIZE == 0
 
 /******************************************************************************
  Non-tick-less mode: interrupt handler of system timer
@@ -77,15 +97,16 @@ void port_sys_init( void )
 #endif
 INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
 {
-	TIM3->SR1 = (uint8_t) ~TIM3_SR1_UIF;
-	core_sys_tick();
+//	if (TIM3->SR1 & TIM3_SR1_UIF)
+	{
+		TIM3->SR1 = (uint8_t) ~TIM3_SR1_UIF;
+		core_sys_tick();
+	}
 }
 
 /******************************************************************************
  End of the handler
 *******************************************************************************/
-
-#endif//OS_TICKLESS
 
 /******************************************************************************
  Interrupt handler for context switch
@@ -96,12 +117,89 @@ INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
 #endif
 INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler, 16)
 {
-	TIM3->SR1 = (uint8_t) ~TIM3_SR1_CC1IF;
-	_set_SP(core_tsk_handler(_get_SP()));
+//	if (TIM3->SR1 & TIM3_SR1_CC1IF)
+	{
+		TIM3->SR1 = (uint8_t) ~TIM3_SR1_CC1IF;
+		_set_SP(core_tsk_handler(_get_SP()));
+	}
 }
 
 /******************************************************************************
  End of the handler
 *******************************************************************************/
+
+#else //HW_TIMER_SIZE
+
+/******************************************************************************
+ Tick-less mode: interrupt handler of system timer
+*******************************************************************************/
+
+#if defined(__CSMC__)
+@svlreg
+#endif
+INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15)
+{
+//	if (TIM3->SR1 & TIM3_SR1_UIF)
+	{
+		TIM3->SR1 = (uint8_t) ~TIM3_SR1_UIF;
+		core_sys_tick();
+	}
+}
+
+/******************************************************************************
+ End of the handler
+*******************************************************************************/
+
+/******************************************************************************
+ Interrupt handler for context switch
+*******************************************************************************/
+
+#if defined(__CSMC__)
+@svlreg
+#endif
+INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler, 16)
+{
+	if (TIM3->SR1 & TIM3_SR1_CC2IF)
+	{
+		TIM3->SR1 = (uint8_t) ~TIM3_SR1_CC2IF;
+		core_tmr_handler();
+	}
+	if (TIM3->SR1 & TIM3_SR1_CC1IF)
+	{
+		TIM3->SR1 = (uint8_t) ~TIM3_SR1_CC1IF;
+		_set_SP(core_tsk_handler(_get_SP()));
+	}
+}
+
+/******************************************************************************
+ End of the handler
+*******************************************************************************/
+
+/******************************************************************************
+ Tick-less mode: return current system time
+*******************************************************************************/
+
+uint32_t port_sys_time( void )
+{
+	uint32_t cnt;
+	uint16_t tck;
+
+	cnt = System.cnt;
+	tck = ((uint16_t)TIM3->CNTRH << 8) | TIM3->CNTRL;
+
+	if (TIM3->SR1 & TIM3_SR1_UIF)
+	{
+		tck = ((uint16_t)TIM3->CNTRH << 8) | TIM3->CNTRL;
+		cnt += 1UL << (HW_TIMER_SIZE);
+	}
+
+	return cnt + tck;
+}
+
+/******************************************************************************
+ End of the function
+*******************************************************************************/
+
+#endif//HW_TIMER_SIZE
 
 /* -------------------------------------------------------------------------- */
