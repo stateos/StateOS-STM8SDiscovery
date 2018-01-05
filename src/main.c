@@ -1,5 +1,5 @@
-#include <os.h>
 #include <led.h>
+#include <os.h>
 
 OS_SEM(sem, 0, semBinary);
 

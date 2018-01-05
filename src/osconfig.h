@@ -8,5 +8,6 @@
 #define OS_HEAP_SIZE          0
 #define OS_STACK_SIZE       128
 #define OS_IDLE_STACK       128
+#define OS_TIMER_SIZE        16
 
 #endif//__OSCONFIG_H

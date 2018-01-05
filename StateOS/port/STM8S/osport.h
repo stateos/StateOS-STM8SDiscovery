@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    28.12.2017
+    @date    02.01.2018
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -39,9 +39,6 @@
 extern "C" {
 #endif
 
-INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
-INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler,     16);
-
 /* -------------------------------------------------------------------------- */
 
 #ifndef CPU_FREQUENCY
@@ -55,13 +52,21 @@ INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler,     16);
 #endif
 
 /* -------------------------------------------------------------------------- */
+// !! WARNING! OS_TIMER_SIZE < HW_TIMER_SIZE may cause unexpected problems !!
+
+#ifndef OS_TIMER_SIZE
+#define OS_TIMER_SIZE        32 /* bit size of system timer counter           */
+#endif
+
+/* -------------------------------------------------------------------------- */
+// !! WARNING! OS_TIMER_SIZE < HW_TIMER_SIZE may cause unexpected problems !!
 
 #ifdef  HW_TIMER_SIZE
-#error  HW_TIMER_SIZE is an internal definition!
+#error  HW_TIMER_SIZE is an internal os definition!
 #elif   OS_FREQUENCY > 1000 
-#define HW_TIMER_SIZE        16
+#define HW_TIMER_SIZE        16 /* bit size of hardware timer                 */
 #else
-#define HW_TIMER_SIZE         0
+#define HW_TIMER_SIZE         0 /* os does not work in tick-less mode         */
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -72,6 +77,19 @@ INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler,     16);
 
 #if     OS_ROBIN > OS_FREQUENCY
 #error  osconfig.h: Incorrect OS_ROBIN value!
+#endif
+
+/* -------------------------------------------------------------------------- */
+// return current system time
+
+#if HW_TIMER_SIZE >= OS_TIMER_SIZE
+
+__STATIC_INLINE
+uint16_t port_sys_time( void )
+{
+	return ((uint16_t)TIM3->CNTRH << 8) | TIM3->CNTRL;
+}
+
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -91,7 +109,7 @@ void port_ctx_reset( void )
 {
 #if HW_TIMER_SIZE
 	#if OS_ROBIN
-	uint16_t timeout = ((uint16_t)TIM3->CNTRH << 8) + TIM3->CNTRL + (uint16_t)((CPU_FREQUENCY)/(OS_FREQUENCY));
+	uint16_t timeout = (((uint16_t)TIM3->CNTRH << 8) | TIM3->CNTRL) + (CPU_FREQUENCY)/(OS_FREQUENCY);
 	TIM3->CCR1H = (uint8_t)(timeout >> 8);
 	TIM3->CCR1L = (uint8_t)(timeout);
 	#endif
@@ -105,7 +123,11 @@ __STATIC_INLINE
 void port_tmr_stop( void )
 {
 #if HW_TIMER_SIZE
-	TIM3->IER = TIM3_IER_UIE | TIM3_IER_CC1IE;
+	#if HW_TIMER_SIZE < OS_TIMER_SIZE
+	TIM3->IER = TIM3_IER_CC1IE | TIM3_IER_UIE;
+	#else
+	TIM3->IER = TIM3_IER_CC1IE;
+	#endif
 #endif
 }
 	
@@ -118,7 +140,11 @@ void port_tmr_start( uint32_t timeout )
 #if HW_TIMER_SIZE
 	TIM3->CCR2H = (uint8_t)(timeout >> 8);
 	TIM3->CCR2L = (uint8_t)(timeout);
-	TIM3->IER = TIM3_IER_UIE | TIM3_IER_CC1IE | TIM3_IER_CC2IE;
+	#if HW_TIMER_SIZE < OS_TIMER_SIZE
+	TIM3->IER = TIM3_IER_CC2IE | TIM3_IER_CC1IE | TIM3_IER_UIE;
+	#else
+	TIM3->IER = TIM3_IER_CC2IE | TIM3_IER_CC1IE;
+	#endif
 #else
 	(void) timeout;
 #endif
@@ -131,10 +157,21 @@ __STATIC_INLINE
 void port_tmr_force( void )
 {
 #if HW_TIMER_SIZE
-	TIM3->IER = TIM3_IER_UIE | TIM3_IER_CC1IE | TIM3_IER_CC2IE;
+	#if HW_TIMER_SIZE < OS_TIMER_SIZE
+	TIM3->IER = TIM3_IER_CC2IE | TIM3_IER_CC1IE | TIM3_IER_UIE;
+	#else
+	TIM3->IER = TIM3_IER_CC2IE | TIM3_IER_CC1IE;
+	#endif
 	TIM3->EGR = TIM3_EGR_CC2G;
 #endif
 }
+
+/* -------------------------------------------------------------------------- */
+
+#if HW_TIMER_SIZE < OS_TIMER_SIZE
+INTERRUPT_HANDLER(TIM3_UPD_OVF_BRK_IRQHandler, 15);
+#endif
+INTERRUPT_HANDLER(TIM3_CAP_COM_IRQHandler,     16);
 
 /* -------------------------------------------------------------------------- */
 
