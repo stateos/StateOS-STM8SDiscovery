@@ -2,7 +2,7 @@
 
     @file    StateOS: osport.h
     @author  Rajmund Szymanski
-    @date    02.01.2018
+    @date    05.01.2018
     @brief   StateOS port definitions for STM8S uC.
 
  ******************************************************************************
@@ -112,6 +112,9 @@ void port_ctx_reset( void )
 	uint16_t timeout = (((uint16_t)TIM3->CNTRH << 8) | TIM3->CNTRL) + (CPU_FREQUENCY)/(OS_FREQUENCY);
 	TIM3->CCR1H = (uint8_t)(timeout >> 8);
 	TIM3->CCR1L = (uint8_t)(timeout);
+	#else
+	TIM3->CCR1H = TIM3->CNTRH;
+	TIM3->CCR1L = TIM3->CNTRL;
 	#endif
 #endif
 }
