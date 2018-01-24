@@ -12,4 +12,4 @@ STM8S-Discovery board.
 License
 -------
 
-This project is licensed under the terms of [GNU GENERAL PUBLIC LICENSE Version 3](http://www.gnu.org/philosophy/why-not-lgpl.html).
+This project is licensed under the terms of [MIT License (MIT)](https://opensource.org/licenses/MIT).
