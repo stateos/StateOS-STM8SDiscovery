@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.c
     @author  Rajmund Szymanski
-    @date    24.01.2018
+    @date    16.07.2018
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -31,7 +31,7 @@
 
 #if defined(__SDCC)
 
-#include <oskernel.h>
+#include "oskernel.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -79,7 +79,7 @@ lck_t _get_CC( void ) __naked
 void _set_CC( lck_t cc ) __naked
 {
 	(void) cc;
-	
+
 	__asm
 
 	ld     a, (3, sp)
