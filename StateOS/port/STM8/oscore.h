@@ -2,7 +2,7 @@
 
     @file    StateOS: oscore.h
     @author  Rajmund Szymanski
-    @date    16.07.2018
+    @date    21.07.2018
     @brief   StateOS port file for STM8 uC.
 
  ******************************************************************************
@@ -116,7 +116,9 @@ struct __ctx
 	unsigned x;
 	unsigned y;
 #if   defined(__SDCC)
+#if  !defined(__SDCC_MODEL_LARGE)
 	char     far;   // hardware saves pc as a far pointer (3 bytes)
+#endif
 #else
 	FAR
 #endif
@@ -124,7 +126,11 @@ struct __ctx
 };
 
 #if   defined(__SDCC)
+#if  !defined(__SDCC_MODEL_LARGE)
 #define _CTX_INIT( pc ) { 0, 0x20, 0, 0, 0, 0, pc }
+#else
+#define _CTX_INIT( pc ) { 0, 0x20, 0, 0, 0, pc }
+#endif
 #else
 #define _CTX_INIT( pc ) { 0, { 0 }, 0x20, 0, 0, 0, (FAR fun_t *) pc }
 #endif
@@ -137,7 +143,9 @@ void port_ctx_init( ctx_t *ctx, fun_t *pc )
 {
 	ctx->cc = 0x20;
 #if   defined(__SDCC)
+#if  !defined(__SDCC_MODEL_LARGE)
 	ctx->far = 0;
+#endif
 	ctx->pc = pc;
 #else
 	ctx->pc = (FAR fun_t *) pc;
