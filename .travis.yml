@@ -11,7 +11,7 @@ install:
 before_script:
   - wget https://github.com/stateos/StateOS/archive/master.zip
   - unzip -q master.zip
-  - mv -T StateOS-master/StateOS/kernel/ StateOS/kernel/
+  - mv StateOS-master/StateOS/* StateOS/
   - rm -r StateOS-master
 
 script: make all SDCC= -f makefile.sdcc
