@@ -1,7 +1,7 @@
 #**********************************************************#
 #file     makefile
 #author   Rajmund Szymanski
-#date     15.11.2017
+#date     06.09.2018
 #brief    STM8 makefile.
 #**********************************************************#
 
@@ -12,16 +12,16 @@ STVP       := c:/sys/tools/stvp/stvp_cmdline -BoardName=ST-LINK -Port=USB -ProgM
 
 PROJECT    ?= $(notdir $(CURDIR))
 DEFS       ?=
-LIBS       ?=
 DIRS       ?=
-KEYS       ?=
 INCS       ?=
+LIBS       ?=
+KEYS       ?=
 SCRIPT     ?=
 
 #----------------------------------------------------------#
 
 DEFS       += STM8S105
-KEYS       += .csmc *
+KEYS       += .csmc .stm8 .stm8s *
 LIBS       += crtsx0 libfsl0 libisl0 libm0
 MODEL      := modsl0
 
