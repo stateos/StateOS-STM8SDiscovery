@@ -2,9 +2,6 @@
 
 set -e
 
-# install dependencies
-sudo apt-get install -y curl subversion build-essential flex bison libboost-dev texinfo stx-btree-dev zip netcat gawk python2.7
-# get the source code
 svn checkout svn://svn.code.sf.net/p/sdcc/code/trunk
 # build and install
 cd trunk/sdcc
@@ -27,4 +24,4 @@ cd trunk/sdcc
 make -s
 sudo make -s install
 cd ../..
-rm -rf trunk
+rm -fRd trunk

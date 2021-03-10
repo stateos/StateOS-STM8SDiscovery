@@ -1,15 +1,14 @@
-StateOS [![Build Status](https://travis-ci.org/stateos/StateOS-STM8SDiscovery.svg)](https://travis-ci.org/stateos/StateOS-STM8SDiscovery)
-=======
+# StateOS
+  [![CI](https://github.com/stateos/StateOS-STM8SDiscovery/actions/workflows/test.yml/badge.svg)](https://github.com/stateos/StateOS-STM8SDiscovery/actions/workflows/test.yml)
 
 Free, extremely simple, amazingly tiny and very fast real-time operating system (RTOS) designed for deeply embedded applications.
 TEMPLATE.
 
-Target
--------
+### Target
+
 
 STM8S-Discovery board.
 
-License
--------
+### License
 
 This project is licensed under the terms of [MIT License (MIT)](https://opensource.org/licenses/MIT).

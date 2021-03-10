@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout repository
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: install dependencies
+      run: |
+        sudo apt-get -y -qq update
+        sudo apt-get -y -qq install curl subversion build-essential flex bison libboost-dev texinfo stx-btree-dev zip netcat gawk python2.7
+    - name: build sdcc
+      run: bash ./.build-sdcc.sh
+    - name: check sdcc version
+      run: sdcc --version
+    - name: make test
+      run: make all -f makefile.sdcc
