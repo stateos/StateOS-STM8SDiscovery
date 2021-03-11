@@ -2,6 +2,7 @@
 
 set -e
 
+# get the source code
 svn checkout svn://svn.code.sf.net/p/sdcc/code/trunk
 # build and install
 cd trunk/sdcc
