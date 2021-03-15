@@ -16,7 +16,7 @@ jobs:
     - name: install dependencies
       run: |
         sudo apt-get -y -qq update
-        sudo apt-get -y -qq install curl subversion build-essential flex bison libboost-dev texinfo stx-btree-dev zip netcat gawk python2.7
+        sudo apt-get -y -qq install curl subversion build-essential flex bison libboost-dev texinfo zip netcat gawk python2.7
     - name: build sdcc
       run: bash ./.build-sdcc.sh
     - name: check sdcc version
