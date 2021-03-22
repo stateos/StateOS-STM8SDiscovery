@@ -10,12 +10,9 @@ COMMON  := common
 #----------------------------------------------------------#
 include $(COMMON)/stateos/make/stm8sdiscovery/makefile.csmc
 #----------------------------------------------------------#
-
-include $(COMMON)/startup/makefile
 include $(COMMON)/api/makefile
 include $(COMMON)/device/makefile
-include $(COMMON)/stateos/makefile
-
+include $(COMMON)/startup/makefile
 #----------------------------------------------------------#
 include $(COMMON)/make/makefile
 #----------------------------------------------------------#
